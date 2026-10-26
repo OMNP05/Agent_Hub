@@ -13,5 +13,6 @@ fun DataError.messageRes(): Int = when (this) {
     DataError.LlmKeyInvalid -> R.string.error_llm_key_invalid
     DataError.ConnectionNeedsReauth -> R.string.error_connection_needs_reauth
     DataError.ApprovalExpired -> R.string.error_approval_expired
+    DataError.SignInNotConfigured -> R.string.error_sign_in_not_configured
     is DataError.Backend, DataError.Unknown -> R.string.error_generic
 }

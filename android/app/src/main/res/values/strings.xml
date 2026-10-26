@@ -33,5 +33,10 @@
     <string name="error_llm_key_invalid">Check your API key or credits.</string>
     <string name="error_connection_needs_reauth">This agent needs to be reconnected.</string>
     <string name="error_approval_expired">This approval has expired.</string>
+    <string name="error_sign_in_not_configured">Google sign-in is not configured in this build.</string>
+    <string name="sign_in_title">Welcome to Agent Hub</string>
+    <string name="sign_in_subtitle">Single-purpose AI agents for GitHub, Gmail and Calendar, controlled from your phone.</string>
+    <string name="sign_in_button">Continue with Google</string>
+    <string name="sign_in_loading">Signing in…</string>
     <string name="error_generic">Something went wrong. Please try again.</string>
 </resources>

@@ -11,6 +11,7 @@ sealed interface DataError {
     data object LlmKeyInvalid : DataError
     data object ConnectionNeedsReauth : DataError
     data object ApprovalExpired : DataError
+    data object SignInNotConfigured : DataError
     data class Backend(val code: String) : DataError
     data object Unknown : DataError
 

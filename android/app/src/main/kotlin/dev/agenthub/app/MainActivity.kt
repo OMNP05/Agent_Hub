@@ -15,7 +15,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             AgentHubTheme(mode = ThemeMode.System) {
-                AppRoot()
+                AuthGate()
             }
         }
     }
