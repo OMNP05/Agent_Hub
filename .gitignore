@@ -1,0 +1,28 @@
+# Gradle / build
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+*.apk
+*.aab
+
+# Local config and secrets (never commit)
+local.properties
+.env
+*.jks
+*.keystore
+google-services.json
+keystore.properties
+
+# IDE
+.idea/
+*.iml
+.kotlin/
+.cxx/
+captures/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude Code local settings
+.claude/settings.local.json
