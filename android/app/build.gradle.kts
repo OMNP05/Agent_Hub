@@ -66,6 +66,10 @@ kotlin {
     jvmToolchain(17)
 }
 
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+}
+
 dependencies {
     val bom = platform(libs.androidx.compose.bom)
     implementation(bom)

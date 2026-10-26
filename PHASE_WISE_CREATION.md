@@ -139,4 +139,6 @@ Real backend, Google sign-in, GitHub/Google OAuth, FCM delivery, speech recognit
 | 2 | `feat/compose-navigation` | uncommitted | assembleDebug, lintDebug, 8 unit tests pass; no UI tests run (no emulator) | Done, awaiting commit |
 | 2 commit | `feat/compose-navigation` | 59c3fbc | see above | Pushed |
 | 3 | `feat/auth-session` | uncommitted | assembleDebug, lintDebug, 32 unit tests pass. Real Google sign-in and backend not verified (no Web client ID, no backend) | Done, awaiting commit |
-| 4 to 10 | | | | Not started |
+| 3 commit | `feat/auth-session` | 140157d | see above | Pushed |
+| 4 | `feat/data-integration` | uncommitted | assembleDebug, lintDebug, 59 unit tests pass. Room DAOs only tested through fakes (no instrumented tests run); API shapes are our proposal, not checked against a real backend | Done, awaiting commit |
+| 5 to 10 | | | | Not started |
