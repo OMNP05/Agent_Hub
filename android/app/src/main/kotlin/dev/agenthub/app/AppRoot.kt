@@ -1,25 +1,60 @@
 package dev.agenthub.app
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.stringResource
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavDestination.Companion.hasRoute
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import dev.agenthub.app.navigation.AppNavHost
+import dev.agenthub.app.navigation.TopLevelDestination
+import dev.agenthub.app.shell.MiniBar
+import dev.agenthub.app.shell.ShellViewModel
 
-/** Placeholder root replaced by the navigation shell in Phase 2. */
 @Composable
-fun AppRoot() {
-    Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-        Box(contentAlignment = Alignment.Center) {
-            Text(
-                text = stringResource(R.string.app_name),
-                style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.onBackground,
-            )
-        }
+fun AppRoot(shellViewModel: ShellViewModel = hiltViewModel()) {
+    val navController = rememberNavController()
+    val shell by shellViewModel.uiState.collectAsStateWithLifecycle()
+    val backStackEntry by navController.currentBackStackEntryAsState()
+    val destination = backStackEntry?.destination
+
+    Scaffold(
+        bottomBar = {
+            Column {
+                shell.activeAgent?.let { agent ->
+                    // Chat and voice entry points are wired in Phases 6 and 8.
+                    MiniBar(agent = agent, onOpen = {}, onMic = {})
+                }
+                NavigationBar {
+                    TopLevelDestination.entries.forEach { tab ->
+                        val selected = destination?.hierarchy?.any { it.hasRoute(tab.route::class) } == true
+                        NavigationBarItem(
+                            selected = selected,
+                            onClick = {
+                                navController.navigate(tab.route) {
+                                    popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            },
+                            icon = { Icon(tab.icon, contentDescription = null) },
+                            label = { Text(stringResource(tab.labelRes)) },
+                        )
+                    }
+                }
+            }
+        },
+    ) { padding ->
+        AppNavHost(navController = navController, contentPadding = padding)
     }
 }

@@ -135,5 +135,6 @@ Real backend, Google sign-in, GitHub/Google OAuth, FCM delivery, speech recognit
 | Phase | Branch | Commit | Build / tests | Status |
 |---|---|---|---|---|
 | 0 | `docs/project-roadmap` | none | n/a | Docs written |
-| 1 | `feat/project-foundation` | | | Toolchain installing |
-| 2 to 10 | | | | Not started |
+| 1 | `feat/project-foundation` | 64fbd47 | assembleDebug + 3 unit tests pass | Done, pushed |
+| 2 | `feat/compose-navigation` | uncommitted | assembleDebug, lintDebug, 8 unit tests pass; no UI tests run (no emulator) | Done, awaiting commit |
+| 3 to 10 | | | | Not started |
