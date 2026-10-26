@@ -6,6 +6,7 @@ import dev.agenthub.app.core.network.dto.ConversationDto
 import dev.agenthub.app.core.network.dto.CreateAgentRequest
 import dev.agenthub.app.core.network.dto.DecisionRequest
 import dev.agenthub.app.core.network.dto.LogEntryDto
+import dev.agenthub.app.core.network.dto.OAuthStartDto
 import dev.agenthub.app.core.network.dto.MessageDto
 import dev.agenthub.app.core.network.dto.UpdateAgentRequest
 import retrofit2.Response
@@ -23,6 +24,10 @@ interface AgentHubApi {
     @POST("agents") suspend fun createAgent(@Body body: CreateAgentRequest): Response<AgentDto>
     @PATCH("agents/{id}") suspend fun updateAgent(@Path("id") id: String, @Body body: UpdateAgentRequest): Response<AgentDto>
     @DELETE("agents/{id}") suspend fun deleteAgent(@Path("id") id: String): Response<Unit>
+
+    @GET("oauth/{connector}/start")
+    suspend fun oauthStart(@Path("connector") connector: String, @Query("agent_id") agentId: String): Response<OAuthStartDto>
+    @DELETE("agents/{id}/connection") suspend fun disconnect(@Path("id") id: String): Response<Unit>
 
     @GET("agents/{id}/conversations") suspend fun conversations(@Path("id") agentId: String): Response<List<ConversationDto>>
     @POST("agents/{id}/conversations") suspend fun createConversation(@Path("id") agentId: String): Response<ConversationDto>

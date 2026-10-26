@@ -27,6 +27,10 @@ interface AgentRepository {
     suspend fun create(agent: NewAgent): AppResult<Agent>
     suspend fun update(id: String, update: AgentUpdate): AppResult<Agent>
     suspend fun delete(id: String): AppResult<Unit>
+
+    /** Asks the backend for the provider consent URL for this agent. Only https URLs are returned. */
+    suspend fun startConnect(agent: Agent): AppResult<String>
+    suspend fun disconnect(agentId: String): AppResult<Unit>
 }
 
 @Singleton
@@ -67,6 +71,25 @@ class DefaultAgentRepository @Inject constructor(
     override suspend fun delete(id: String): AppResult<Unit> = withContext(dispatchers.io) {
         val result = apiUnitCall { api.deleteAgent(id) }
         if (result is AppResult.Success) dao.delete(id)
+        result
+    }
+
+    override suspend fun startConnect(agent: Agent): AppResult<String> = withContext(dispatchers.io) {
+        when (val result = apiCall { api.oauthStart(agent.connector.wire, agent.id) }) {
+            is AppResult.Failure -> result
+            is AppResult.Success ->
+                // Never open anything but https in the browser, whatever the server returns.
+                if (result.value.authUrl.startsWith("https://")) {
+                    AppResult.Success(result.value.authUrl)
+                } else {
+                    AppResult.Failure(dev.agenthub.app.core.error.DataError.Unknown)
+                }
+        }
+    }
+
+    override suspend fun disconnect(agentId: String): AppResult<Unit> = withContext(dispatchers.io) {
+        val result = apiUnitCall { api.disconnect(agentId) }
+        if (result is AppResult.Success) refresh()
         result
     }
 

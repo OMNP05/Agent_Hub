@@ -3,25 +3,28 @@ package dev.agenthub.app.navigation
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Cable
 import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material.icons.outlined.SmartToy
 import androidx.compose.material.icons.outlined.Timeline
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.foundation.layout.padding
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import dev.agenthub.app.R
+import dev.agenthub.app.agents.ui.connectors.ConnectorsScreen
+import dev.agenthub.app.agents.ui.detail.AgentDetailScreen
+import dev.agenthub.app.agents.ui.home.HomeScreen
+import dev.agenthub.app.agents.ui.newagent.NewAgentScreen
+import dev.agenthub.app.agents.ui.setup.AgentSetupScreen
 import dev.agenthub.app.core.ui.components.EmptyState
 
 private const val TransitionMillis = 220
@@ -48,14 +51,34 @@ fun AppNavHost(
         popEnterTransition = enter,
         popExitTransition = exit,
     ) {
-        // Tab bodies are placeholders (empty states) until Phases 5 to 9 fill them in.
         composable<HomeRoute> {
-            EmptyState(
-                icon = Icons.Outlined.SmartToy,
-                title = stringResource(R.string.home_empty_title),
-                message = stringResource(R.string.home_empty_message),
+            HomeScreen(
+                onOpenAgent = { navController.navigate(AgentDetailRoute(it)) },
+                onNewAgent = { navController.navigate(NewAgentRoute) },
+                onPickTemplate = { navController.navigate(AgentSetupRoute(it)) },
             )
         }
+        composable<NewAgentRoute> {
+            NewAgentScreen(
+                onBack = { navController.popBackStack() },
+                onPick = { navController.navigate(AgentSetupRoute(it)) },
+            )
+        }
+        composable<AgentSetupRoute> {
+            AgentSetupScreen(
+                onBack = { navController.popBackStack() },
+                // Replace the setup screens with the new agent so Back returns to Home, not to a finished form.
+                onDone = { agentId ->
+                    navController.navigate(AgentDetailRoute(agentId)) {
+                        popUpTo(HomeRoute)
+                    }
+                },
+            )
+        }
+        composable<AgentDetailRoute> {
+            AgentDetailScreen(onBack = { navController.popBackStack() })
+        }
+        // Activity and Settings are filled in by later phases (7 and 9).
         composable<ActivityRoute> {
             EmptyState(
                 icon = Icons.Outlined.Timeline,
@@ -64,11 +87,7 @@ fun AppNavHost(
             )
         }
         composable<ConnectorsRoute> {
-            EmptyState(
-                icon = Icons.Outlined.Cable,
-                title = stringResource(R.string.connectors_empty_title),
-                message = stringResource(R.string.connectors_empty_message),
-            )
+            ConnectorsScreen(onOpenAgent = { navController.navigate(AgentDetailRoute(it)) })
         }
         composable<SettingsRoute> {
             EmptyState(

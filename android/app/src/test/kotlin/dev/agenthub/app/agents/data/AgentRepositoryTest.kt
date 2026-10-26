@@ -9,6 +9,7 @@ import dev.agenthub.app.core.model.AgentUpdate
 import dev.agenthub.app.core.model.NewAgent
 import dev.agenthub.app.core.network.UnconfinedDispatchers
 import dev.agenthub.app.core.network.agentHubApi
+import dev.agenthub.app.core.network.dto.toDomain
 import dev.agenthub.app.core.network.testJson
 import kotlinx.coroutines.test.runTest
 import okhttp3.mockwebserver.MockResponse
@@ -128,6 +129,25 @@ class AgentRepositoryTest {
         server.enqueue(MockResponse().setResponseCode(204))
         assertEquals(AppResult.Success(Unit), repo.delete("a1"))
         assertEquals(0, dao.snapshot.size)
+    }
+
+    @Test
+    fun startConnectReturnsOnlyHttpsUrls() = runTest {
+        val agent = dev.agenthub.app.core.network.dto.AgentDto(
+            id = "a1", name = "n", templateId = "t", connector = "gmail",
+        ).toDomain()!!
+
+        server.enqueue(MockResponse().setBody("""{"auth_url":"https://accounts.example/consent?state=s"}"""))
+        assertEquals(AppResult.Success("https://accounts.example/consent?state=s"), repo.startConnect(agent))
+        val request = server.takeRequest()
+        assertEquals("/oauth/gmail/start", request.requestUrl!!.encodedPath)
+        assertEquals("a1", request.requestUrl!!.queryParameter("agent_id"))
+
+        server.enqueue(MockResponse().setBody("""{"auth_url":"http://insecure.example/consent"}"""))
+        assertEquals(AppResult.Failure(DataError.Unknown), repo.startConnect(agent))
+
+        server.enqueue(MockResponse().setBody("""{"auth_url":"intent://evil#Intent;end"}"""))
+        assertEquals(AppResult.Failure(DataError.Unknown), repo.startConnect(agent))
     }
 
     @Test

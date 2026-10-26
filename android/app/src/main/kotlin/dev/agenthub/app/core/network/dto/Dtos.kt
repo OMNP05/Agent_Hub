@@ -51,6 +51,9 @@ data class UpdateAgentRequest(
 )
 
 @Serializable
+data class OAuthStartDto(@SerialName("auth_url") val authUrl: String)
+
+@Serializable
 data class ConversationDto(
     val id: String,
     @SerialName("agent_id") val agentId: String,

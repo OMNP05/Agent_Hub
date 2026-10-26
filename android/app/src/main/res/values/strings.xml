@@ -38,5 +38,60 @@
     <string name="sign_in_subtitle">Single-purpose AI agents for GitHub, Gmail and Calendar, controlled from your phone.</string>
     <string name="sign_in_button">Continue with Google</string>
     <string name="sign_in_loading">Signing in…</string>
+    <string name="home_title">Your agents</string>
+    <string name="home_recent">Recently used</string>
+    <string name="home_templates">Templates</string>
+    <string name="home_new_agent">New agent</string>
+    <string name="agent_status_active">Active</string>
+    <string name="agent_status_paused">Paused</string>
+    <string name="agent_status_draft">Not deployed</string>
+    <string name="agent_needs_connection">Needs connection</string>
+    <string name="agent_needs_reauth">Reconnect needed</string>
+
+    <string name="new_agent_title">New agent</string>
+    <string name="new_agent_subtitle">Pick what this agent will do.</string>
+    <string name="navigate_back">Back</string>
+
+    <string name="setup_title">Set up %1$s</string>
+    <string name="setup_name">Name</string>
+    <string name="setup_instructions">Instructions</string>
+    <string name="setup_permissions">What it may do</string>
+    <string name="setup_permissions_hint">Anything that changes data asks you first. Dangerous actions always ask.</string>
+    <string name="setup_connect">Create and connect</string>
+    <string name="setup_connect_note">You will sign in to the provider in your browser. Agent Hub stores the access on its server, not on this phone.</string>
+    <string name="setup_unknown_template">This template is not available.</string>
+
+    <string name="mode_ask">Ask each time</string>
+    <string name="mode_allow">Allow</string>
+    <string name="mode_always_ask">Always asks</string>
+    <string name="toggle_state_on">On</string>
+    <string name="toggle_state_off">Off</string>
+
+    <string name="detail_connection">Connection</string>
+    <string name="detail_connected">Connected</string>
+    <string name="detail_not_connected">Not connected</string>
+    <string name="detail_connect">Connect</string>
+    <string name="detail_reconnect">Reconnect</string>
+    <string name="detail_disconnect">Disconnect</string>
+    <string name="detail_save">Save changes</string>
+    <string name="detail_discard">Discard</string>
+    <string name="detail_pause">Pause agent</string>
+    <string name="detail_resume">Resume agent</string>
+    <string name="detail_delete">Delete agent</string>
+    <string name="detail_delete_title">Delete this agent?</string>
+    <string name="detail_delete_message">Its chats and its access to the provider are removed. This cannot be undone.</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="detail_not_found">This agent no longer exists.</string>
+    <string name="detail_saved">Changes saved</string>
+    <string name="detail_connected_message">Connection updated</string>
+    <string name="detail_connection_failed">Connection was not completed</string>
+    <string name="detail_disconnected">Disconnected</string>
+    <string name="detail_consent_failed">Could not open the sign-in page.</string>
+    <string name="detail_scopes">Granted access: %1$s</string>
+    <string name="detail_no_browser">No browser is available to sign in.</string>
+
+    <string name="connectors_agent_row">%1$s</string>
+
     <string name="error_generic">Something went wrong. Please try again.</string>
 </resources>

@@ -15,6 +15,10 @@ import kotlinx.serialization.Serializable
 @Serializable data object ConnectorsRoute
 @Serializable data object SettingsRoute
 
+@Serializable data object NewAgentRoute
+@Serializable data class AgentSetupRoute(val templateId: String)
+@Serializable data class AgentDetailRoute(val agentId: String)
+
 /** The four bottom-bar tabs, in display order (blueprint 3.6). */
 enum class TopLevelDestination(
     val route: Any,

@@ -29,6 +29,10 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         // No secrets here: the Google *Web client ID* is a public identifier, supplied locally.
+        // Verified App Link host for the OAuth return (architecture 1.3). The domain is still undecided,
+        // so this placeholder never verifies until a real host is set in local.properties.
+        manifestPlaceholders["appLinkHost"] = localProp("APP_LINK_HOST", "agenthub.invalid")
+        buildConfigField("String", "APP_LINK_HOST", "\"${localProp("APP_LINK_HOST", "agenthub.invalid")}\"")
         buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"${localProp("GOOGLE_WEB_CLIENT_ID", "")}\"")
     }
 
@@ -84,6 +88,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.browser)
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services)
     implementation(libs.google.id)
