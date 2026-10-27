@@ -50,6 +50,38 @@ data class UpdateAgentRequest(
     val status: String? = null,
 )
 
+/** The key is only ever present in requests. Responses carry [keyLast4] and never the key. */
+@Serializable
+data class LlmProfileDto(
+    val id: String,
+    val name: String,
+    val provider: String,
+    @SerialName("base_url") val baseUrl: String? = null,
+    val model: String,
+    val temperature: Double = 0.2,
+    @SerialName("max_tokens") val maxTokens: Int = 1000,
+    @SerialName("key_last4") val keyLast4: String? = null,
+    @SerialName("is_default") val isDefault: Boolean = false,
+)
+
+@Serializable
+data class LlmProfileRequest(
+    val name: String,
+    val provider: String,
+    @SerialName("base_url") val baseUrl: String? = null,
+    val model: String,
+    val temperature: Double,
+    @SerialName("max_tokens") val maxTokens: Int,
+    @SerialName("api_key") val apiKey: String? = null,
+    @SerialName("is_default") val isDefault: Boolean = false,
+)
+
+@Serializable
+data class TestResultDto(val ok: Boolean = false)
+
+@Serializable
+data class ExportDto(val url: String? = null)
+
 @Serializable
 data class DeviceRequest(@SerialName("fcm_token") val fcmToken: String)
 

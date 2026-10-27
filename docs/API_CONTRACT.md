@@ -46,3 +46,13 @@ Stored message `content` is an array of blocks: `{"type":"text","text"}`, `{"typ
 - `GET /agents/{id}/logs?before=<ISO time>&limit=30` returns audit entries newest first: `{"id","agent_id","tool","args_redacted","result_summary","created_at"}`. Secrets are redacted by the server.
 - `POST /devices` body `{"fcm_token"}` registers this phone; `POST /devices/unregister` with the same body is called on sign-out.
 - FCM data message for an approval (no action details, so nothing sensitive reaches the lock screen): `{"type":"approval","approval_id":"...","agent_name":"..."}`. Tapping it opens the Activity tab on that approval.
+
+
+## LLM profiles, safety and account (proposal)
+
+- `GET /llm-profiles` returns `{"id","name","provider","base_url","model","temperature","max_tokens","key_last4","is_default"}`. **The API key is never returned**, only `key_last4`. Providers: `openai`, `anthropic`, `openai_compatible`.
+- `POST /llm-profiles` and `PATCH /llm-profiles/{id}` take the same fields plus `api_key`. On `PATCH`, an omitted `api_key` keeps the stored key. The server must repeat all validation and apply SSRF protection to `base_url` (https only; block private, loopback and link-local ranges including cloud metadata; no redirects into blocked ranges; timeouts and size limits).
+- `POST /llm-profiles/{id}/test` tests a saved profile; `POST /llm-profiles/test` tests an unsaved one from the request body. Both return `{"ok": true|false}`.
+- `DELETE /llm-profiles/{id}` deletes a profile and its stored key.
+- `POST /agents/kill-switch` pauses every agent; runs stop at their next Gateway call.
+- `POST /account/export` returns `{"url"}` (https) or an empty url if the export is prepared asynchronously. `DELETE /account` removes the user, agents, connections (revoked at providers first), keys and logs.

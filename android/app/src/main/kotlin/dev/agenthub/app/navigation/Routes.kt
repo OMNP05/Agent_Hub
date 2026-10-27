@@ -20,6 +20,8 @@ import kotlinx.serialization.Serializable
 @Serializable data class AgentSetupRoute(val templateId: String)
 @Serializable data class AgentDetailRoute(val agentId: String)
 @Serializable data class ChatRoute(val agentId: String, val listen: Boolean = false)
+@Serializable data object LlmProfilesRoute
+@Serializable data class LlmProfileFormRoute(val profileId: String? = null)
 
 /** The four bottom-bar tabs, in display order (blueprint 3.6). */
 enum class TopLevelDestination(

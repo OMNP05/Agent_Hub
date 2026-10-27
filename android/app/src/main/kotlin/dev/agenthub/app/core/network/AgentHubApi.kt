@@ -6,7 +6,11 @@ import dev.agenthub.app.core.network.dto.ConversationDto
 import dev.agenthub.app.core.network.dto.CreateAgentRequest
 import dev.agenthub.app.core.network.dto.DecisionRequest
 import dev.agenthub.app.core.network.dto.DeviceRequest
+import dev.agenthub.app.core.network.dto.ExportDto
+import dev.agenthub.app.core.network.dto.LlmProfileDto
+import dev.agenthub.app.core.network.dto.LlmProfileRequest
 import dev.agenthub.app.core.network.dto.LogEntryDto
+import dev.agenthub.app.core.network.dto.TestResultDto
 import dev.agenthub.app.core.network.dto.OAuthStartDto
 import dev.agenthub.app.core.network.dto.RunDto
 import dev.agenthub.app.core.network.dto.MessageDto
@@ -40,6 +44,17 @@ interface AgentHubApi {
 
     @GET("runs/{id}") suspend fun run(@Path("id") id: String): Response<RunDto>
     @POST("runs/{id}/cancel") suspend fun cancelRun(@Path("id") id: String): Response<Unit>
+
+    @GET("llm-profiles") suspend fun llmProfiles(): Response<List<LlmProfileDto>>
+    @POST("llm-profiles") suspend fun createLlmProfile(@Body body: LlmProfileRequest): Response<LlmProfileDto>
+    @PATCH("llm-profiles/{id}") suspend fun updateLlmProfile(@Path("id") id: String, @Body body: LlmProfileRequest): Response<LlmProfileDto>
+    @DELETE("llm-profiles/{id}") suspend fun deleteLlmProfile(@Path("id") id: String): Response<Unit>
+    @POST("llm-profiles/{id}/test") suspend fun testLlmProfile(@Path("id") id: String): Response<TestResultDto>
+    @POST("llm-profiles/test") suspend fun testLlmDraft(@Body body: LlmProfileRequest): Response<TestResultDto>
+
+    @POST("agents/kill-switch") suspend fun killSwitch(): Response<Unit>
+    @POST("account/export") suspend fun exportData(): Response<ExportDto>
+    @DELETE("account") suspend fun deleteAccount(): Response<Unit>
 
     @POST("devices") suspend fun registerDevice(@Body body: DeviceRequest): Response<Unit>
     @POST("devices/unregister") suspend fun unregisterDevice(@Body body: DeviceRequest): Response<Unit>

@@ -55,6 +55,9 @@ abstract class RepositoryModule {
     @Binds abstract fun agents(impl: DefaultAgentRepository): AgentRepository
     @Binds abstract fun chat(impl: DefaultChatRepository): ChatRepository
     @Binds abstract fun approvals(impl: DefaultApprovalRepository): ApprovalRepository
+    @Binds abstract fun llm(impl: dev.agenthub.app.llm.data.DefaultLlmRepository): dev.agenthub.app.llm.data.LlmRepository
+    @Binds abstract fun settings(impl: dev.agenthub.app.settings.data.DataStoreSettingsStore): dev.agenthub.app.settings.data.SettingsStore
+    @Binds abstract fun account(impl: dev.agenthub.app.settings.data.DefaultAccountRepository): dev.agenthub.app.settings.data.AccountRepository
     @Binds abstract fun devices(impl: dev.agenthub.app.push.DefaultDeviceRepository): dev.agenthub.app.push.DeviceRepository
     @Binds abstract fun fcmTokens(impl: dev.agenthub.app.push.FirebaseTokenSource): dev.agenthub.app.push.FcmTokenSource
 }

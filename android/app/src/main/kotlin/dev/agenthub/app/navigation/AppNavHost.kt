@@ -22,6 +22,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import dev.agenthub.app.approvals.ui.ActivityScreen
 import dev.agenthub.app.chat.ui.ChatScreen
+import dev.agenthub.app.llm.ui.LlmProfileFormScreen
+import dev.agenthub.app.llm.ui.LlmProfilesScreen
+import dev.agenthub.app.settings.ui.SettingsScreen
 import dev.agenthub.app.R
 import dev.agenthub.app.agents.ui.connectors.ConnectorsScreen
 import dev.agenthub.app.agents.ui.detail.AgentDetailScreen
@@ -100,11 +103,17 @@ fun AppNavHost(
             ConnectorsScreen(onOpenAgent = { navController.navigate(AgentDetailRoute(it)) })
         }
         composable<SettingsRoute> {
-            EmptyState(
-                icon = Icons.Outlined.Settings,
-                title = stringResource(R.string.settings_title),
-                message = stringResource(R.string.settings_empty_message),
+            SettingsScreen(onOpenLlmProfiles = { navController.navigate(LlmProfilesRoute) })
+        }
+        composable<LlmProfilesRoute> {
+            LlmProfilesScreen(
+                onBack = { navController.popBackStack() },
+                onAdd = { navController.navigate(LlmProfileFormRoute()) },
+                onEdit = { navController.navigate(LlmProfileFormRoute(it)) },
             )
+        }
+        composable<LlmProfileFormRoute> {
+            LlmProfileFormScreen(onBack = { navController.popBackStack() })
         }
     }
 }

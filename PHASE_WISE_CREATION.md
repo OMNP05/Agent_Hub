@@ -146,5 +146,6 @@ Real backend, Google sign-in, GitHub/Google OAuth, FCM delivery, speech recognit
 | 5 commit | `feat/agents` | 5865339 | see above | Pushed |
 | 6 | `feat/chat` | fdbe7b6 | assembleDebug, lintDebug, 147 unit tests pass (SSE via MockWebServer). Screens and real streaming never run on a device; backend chat endpoints are our proposal | Done, pushed |
 | 7 | `feat/approvals-activity` | 58a5a6d | assembleDebug, lintDebug, 188 unit tests pass. FCM never received on a device (no Firebase project, no google-services.json); approval screens never run on a device | Done, pushed |
-| 8 | `feat/voice` | uncommitted | assembleDebug, lintDebug, 221 unit tests pass (incl. a guard that voice code never references approvals). SpeechRecognizer and TextToSpeech never run on a device; recognition quality for Hindi untested | Done, awaiting commit |
-| 9 to 10 | | | | Not started |
+| 8 | `feat/voice` | 414c8b8 | assembleDebug, lintDebug, 221 unit tests pass (incl. a guard that voice code never references approvals). SpeechRecognizer and TextToSpeech never run on a device; recognition quality for Hindi untested | Done, pushed |
+| 9 | `feat/settings-llm` | uncommitted | assembleDebug, lintDebug (0 errors, 21 warnings), 280 unit tests pass. Biometric prompt, theme switch, export link and account deletion never run on a device; backend endpoints are our proposal | Done, awaiting commit |
+| 10 | | | | Not started |

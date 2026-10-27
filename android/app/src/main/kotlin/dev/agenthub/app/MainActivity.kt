@@ -2,7 +2,7 @@ package dev.agenthub.app
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.activity.ComponentActivity
+import androidx.fragment.app.FragmentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import dagger.hilt.android.AndroidEntryPoint
@@ -15,7 +15,7 @@ import dev.agenthub.app.core.ui.theme.AgentHubTheme
 import dev.agenthub.app.core.ui.theme.ThemeMode
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+class MainActivity : FragmentActivity() {
     @Inject lateinit var oauthReturns: OAuthReturnBus
     @Inject lateinit var notificationNavigation: NotificationNavigation
 
@@ -24,9 +24,7 @@ class MainActivity : ComponentActivity() {
         handleAppLink(intent)
         enableEdgeToEdge()
         setContent {
-            AgentHubTheme(mode = ThemeMode.System) {
-                AuthGate()
-            }
+            AppEntry()
         }
     }
 
