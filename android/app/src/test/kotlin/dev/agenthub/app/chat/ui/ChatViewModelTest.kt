@@ -69,6 +69,35 @@ class ChatViewModelTest {
     }
 
     @Test
+    fun comingBackIntoViewRefreshesTheStoredHistory() {
+        val v = vm()
+        val before = chats.refreshMessagesCalls
+        v.onResume()
+        assertEquals(before + 1, chats.refreshMessagesCalls)
+    }
+
+    @Test
+    fun comingBackDuringALiveRunDoesNotRefresh() = runTest(dispatcher) {
+        val v = vm()
+        stream.sendScript = { hanging(ev("1", RunEvent.Started("r1", "c1"))) }
+        v.onInputChange("work")
+        v.onSend()
+        val before = chats.refreshMessagesCalls
+        v.onResume()
+        assertEquals(before, chats.refreshMessagesCalls)
+        v.onStop()
+        advanceUntilIdle()
+    }
+
+    @Test
+    fun comingBackWithNoConversationDoesNothing() {
+        val v = vm(emptyList())
+        val before = chats.refreshMessagesCalls
+        v.onResume()
+        assertEquals(before, chats.refreshMessagesCalls)
+    }
+
+    @Test
     fun noConversationsShowsEmptyState() {
         val v = vm(emptyList())
         assertTrue(v.uiState.value.isEmpty)

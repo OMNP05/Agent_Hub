@@ -34,9 +34,13 @@ object NonceGenerator {
 }
 
 /** Credential Manager "Sign in with Google". Needs an Activity context so the account picker can show. */
-class CredentialManagerGoogleIdTokenProvider @Inject constructor() : GoogleIdTokenProvider {
+class CredentialManagerGoogleIdTokenProvider @Inject constructor(
+    private val hooks: java.util.Optional<dev.agenthub.app.core.network.DebugHooks>,
+) : GoogleIdTokenProvider {
 
     override suspend fun request(context: Context): IdTokenResult {
+        // Only a debug build can bind hooks; release always uses the real Google sign-in below.
+        hooks.orElse(null)?.idTokens()?.let { return it.request(context) }
         val webClientId = BuildConfig.GOOGLE_WEB_CLIENT_ID
         if (webClientId.isBlank()) return IdTokenResult.Failed(DataError.SignInNotConfigured)
 

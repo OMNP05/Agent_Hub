@@ -38,12 +38,15 @@ android {
         // Verified App Link host for the OAuth return (architecture 1.3). The domain is still undecided,
         // so this placeholder never verifies until a real host is set in local.properties.
         manifestPlaceholders["appLinkHost"] = localProp("APP_LINK_HOST", "agenthub.invalid")
+        buildConfigField("boolean", "DEMO_MODE", "false")
         buildConfigField("String", "APP_LINK_HOST", "\"${localProp("APP_LINK_HOST", "agenthub.invalid")}\"")
         buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"${localProp("GOOGLE_WEB_CLIENT_ID", "")}\"")
     }
 
     buildTypes {
         debug {
+            // Debug builds run against the built-in demo backend unless DEMO_BACKEND=false is set.
+            buildConfigField("boolean", "DEMO_MODE", localProp("DEMO_BACKEND", "true"))
             buildConfigField("String", "API_BASE_URL", "\"${localProp("API_BASE_URL", "http://10.0.2.2:8000/")}\"")
         }
         release {

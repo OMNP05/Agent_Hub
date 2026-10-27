@@ -44,9 +44,10 @@ object NetworkModule {
 
     /** Plain client: no auth headers, used for sign-in and refresh so refresh can't recurse. */
     @Provides @Singleton @Named("plain")
-    fun plainClient(): OkHttpClient = OkHttpClient.Builder()
+    fun plainClient(hooks: java.util.Optional<DebugHooks>): OkHttpClient = OkHttpClient.Builder()
         .connectTimeout(15, TimeUnit.SECONDS)
         .readTimeout(30, TimeUnit.SECONDS)
+        .also { builder -> hooks.ifPresent { it.customize(builder) } }
         .build()
 
     @Provides @Singleton

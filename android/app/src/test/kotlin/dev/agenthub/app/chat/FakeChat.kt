@@ -42,7 +42,8 @@ class FakeChatRepository : ChatRepository {
     override suspend fun refreshConversations(agentId: String) = refreshConversationsResult
 
     // yield() throws if the caller was cancelled, which is what the real withContext(io) repository does.
-    override suspend fun refreshMessages(conversationId: String): AppResult<Unit> { yield(); return AppResult.Success(Unit) }
+    var refreshMessagesCalls = 0
+    override suspend fun refreshMessages(conversationId: String): AppResult<Unit> { yield(); refreshMessagesCalls++; return AppResult.Success(Unit) }
 
     override suspend fun newConversation(agentId: String): AppResult<Conversation> {
         newConversationCalls++

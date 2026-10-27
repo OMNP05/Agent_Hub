@@ -130,6 +130,17 @@ class ChatViewModel @Inject constructor(
 
     fun onRetry() = load()
 
+    /**
+     * Called each time the chat comes back into view. A run can finish while the user is elsewhere (for example
+     * after approving in the Activity tab), so the stored history is fetched again. Skipped during a live run,
+     * whose rows come from the stream.
+     */
+    fun onResume() {
+        val id = currentConversation.value ?: return
+        if (_uiState.value.isRunning) return
+        viewModelScope.launch { chats.refreshMessages(id) }
+    }
+
     private fun select(id: String?) {
         currentConversation.value = id
         _uiState.update { it.copy(currentConversationId = id, showHistory = false) }

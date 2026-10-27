@@ -13,6 +13,7 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.semantics.contentDescription
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.repeatOnLifecycle
 import dev.agenthub.app.voice.VoiceEffect
 import dev.agenthub.app.voice.VoiceUiState
@@ -107,6 +108,8 @@ fun ChatScreen(
             micPermission.launch(Manifest.permission.RECORD_AUDIO)
         }
     }
+
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { viewModel.onResume() }
 
     // Opened from the mini-bar mic: start listening once, not again after rotation.
     var autoStarted by rememberSaveable { mutableStateOf(false) }
