@@ -20,6 +20,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
+import dev.agenthub.app.approvals.ui.ActivityScreen
 import dev.agenthub.app.chat.ui.ChatScreen
 import dev.agenthub.app.R
 import dev.agenthub.app.agents.ui.connectors.ConnectorsScreen
@@ -91,13 +92,8 @@ fun AppNavHost(
                 onOpenAgent = { navController.navigate(AgentDetailRoute(agentId)) },
             )
         }
-        // Activity and Settings are filled in by later phases (7 and 9).
-        composable<ActivityRoute> {
-            EmptyState(
-                icon = Icons.Outlined.Timeline,
-                title = stringResource(R.string.activity_empty_title),
-                message = stringResource(R.string.activity_empty_message),
-            )
+        composable<ActivityRoute> { entry ->
+            ActivityScreen(highlightApprovalId = entry.toRoute<ActivityRoute>().highlightApprovalId)
         }
         composable<ConnectorsRoute> {
             ConnectorsScreen(onOpenAgent = { navController.navigate(AgentDetailRoute(it)) })

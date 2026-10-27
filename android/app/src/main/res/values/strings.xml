@@ -93,6 +93,36 @@
 
     <string name="connectors_agent_row">%1$s</string>
 
+    <string name="push_channel_name">Approvals</string>
+    <string name="push_channel_description">Requests from your agents that need your approval</string>
+    <string name="push_title">%1$s needs your approval</string>
+    <string name="push_title_generic">An agent needs your approval</string>
+    <string name="push_text">Open Agent Hub to review the action.</string>
+
+    <string name="approvals_title">Needs your approval</string>
+    <string name="approvals_empty_title">Nothing waiting</string>
+    <string name="approvals_empty_message">When an agent wants to do something that changes data, it will appear here.</string>
+    <string name="approval_wants_to">%1$s wants to</string>
+    <string name="approval_approve">Approve</string>
+    <string name="approval_reject">Reject</string>
+    <string name="approval_exact_notice">This is exactly what will run. It cannot be changed after you approve.</string>
+    <string name="approval_dangerous_notice">This affects other people or is hard to undo. Voice cannot approve it.</string>
+    <string name="approval_expires">Expires %1$s</string>
+    <string name="approval_decided_approved">Approved</string>
+    <string name="approval_decided_rejected">Rejected</string>
+    <string name="approval_decided_expired">Expired</string>
+    <string name="approval_already_handled">This request was already handled or has expired.</string>
+    <string name="approval_confirm_title">Approve this action?</string>
+    <string name="approval_confirm_message">%1$s will run exactly as shown.</string>
+    <string name="activity_log_title">Recent activity</string>
+    <string name="activity_log_empty">No activity yet</string>
+    <string name="activity_log_agent">Agent</string>
+    <string name="activity_log_all">All</string>
+    <string name="activity_log_load_more">Load more</string>
+    <string name="activity_log_args">Details</string>
+    <string name="activity_notifications_denied">Notifications are off, so you will not hear about approvals. You can still review them here.</string>
+    <string name="activity_enable_notifications">Turn on</string>
+
     <string name="chat_title_fallback">Chat</string>
     <string name="chat_open">Open chat</string>
     <string name="chat_input_hint">Message %1$s</string>

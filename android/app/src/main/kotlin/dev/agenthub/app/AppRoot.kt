@@ -16,6 +16,8 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.compose.runtime.LaunchedEffect
+import dev.agenthub.app.navigation.ActivityRoute
 import dev.agenthub.app.navigation.AppNavHost
 import dev.agenthub.app.navigation.TopLevelDestination
 import dev.agenthub.app.shell.MiniBar
@@ -27,6 +29,15 @@ fun AppRoot(shellViewModel: ShellViewModel = hiltViewModel()) {
     val shell by shellViewModel.uiState.collectAsStateWithLifecycle()
     val backStackEntry by navController.currentBackStackEntryAsState()
     val destination = backStackEntry?.destination
+
+    LaunchedEffect(shellViewModel) {
+        shellViewModel.openApprovals.collect { approvalId ->
+            navController.navigate(ActivityRoute(highlightApprovalId = approvalId)) {
+                popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                launchSingleTop = true
+            }
+        }
+    }
 
     Scaffold(
         bottomBar = {

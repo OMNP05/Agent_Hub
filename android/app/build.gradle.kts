@@ -8,6 +8,12 @@ plugins {
     alias(libs.plugins.hilt)
 }
 
+// google-services.json is a per-developer Firebase file and is never committed. Without it the app still
+// builds; push simply stays off (see FirebaseTokenProvider).
+if (file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
+}
+
 val localProps = Properties().apply {
     val f = rootProject.file("local.properties")
     if (f.exists()) f.inputStream().use { load(it) }
@@ -88,6 +94,8 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.datastore.preferences)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.messaging)
     implementation(libs.androidx.browser)
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services)

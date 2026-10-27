@@ -38,3 +38,11 @@ Each SSE message has an increasing `id:`, an `event:` name and a JSON `data:` li
 | `run.error` | `{"code"}` |
 
 Stored message `content` is an array of blocks: `{"type":"text","text"}`, `{"type":"tool_call","id","tool","args"}`, `{"type":"tool_result_summary","tool_call_id","summary"}`.
+
+## Approvals, devices and push (proposal)
+
+- `GET /approvals` returns pending approvals: `{"id","run_id","agent_id","agent_name","tool","args","status","created_at","expires_at"}`. `args` are the exact stored arguments shown in full on the card.
+- `POST /approvals/{id}/decision` body `{"decision":"approve"|"reject"}`. The server changes `pending` to the new status in one atomic update and runs the stored arguments only. A second decision, or one after expiry, returns `409 {"error":{"code":"approval_expired"}}`. The app never retries a decision automatically.
+- `GET /agents/{id}/logs?before=<ISO time>&limit=30` returns audit entries newest first: `{"id","agent_id","tool","args_redacted","result_summary","created_at"}`. Secrets are redacted by the server.
+- `POST /devices` body `{"fcm_token"}` registers this phone; `POST /devices/unregister` with the same body is called on sign-out.
+- FCM data message for an approval (no action details, so nothing sensitive reaches the lock screen): `{"type":"approval","approval_id":"...","agent_name":"..."}`. Tapping it opens the Activity tab on that approval.

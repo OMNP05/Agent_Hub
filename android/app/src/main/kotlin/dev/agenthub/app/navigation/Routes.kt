@@ -11,7 +11,8 @@ import dev.agenthub.app.R
 import kotlinx.serialization.Serializable
 
 @Serializable data object HomeRoute
-@Serializable data object ActivityRoute
+/** [highlightApprovalId] is set when the user arrives from a notification. */
+@Serializable data class ActivityRoute(val highlightApprovalId: String? = null)
 @Serializable data object ConnectorsRoute
 @Serializable data object SettingsRoute
 
@@ -27,7 +28,7 @@ enum class TopLevelDestination(
     val icon: ImageVector,
 ) {
     Home(HomeRoute, R.string.tab_home, Icons.Outlined.Home),
-    Activity(ActivityRoute, R.string.tab_activity, Icons.Outlined.Timeline),
+    Activity(ActivityRoute(), R.string.tab_activity, Icons.Outlined.Timeline),
     Connectors(ConnectorsRoute, R.string.tab_connectors, Icons.Outlined.Cable),
     Settings(SettingsRoute, R.string.tab_settings, Icons.Outlined.Settings),
 }

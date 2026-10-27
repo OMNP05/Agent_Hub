@@ -25,6 +25,7 @@ class AuthRepositoryTest {
     private lateinit var server: MockWebServer
     private lateinit var store: FakeSessionStore
     private lateinit var repo: DefaultAuthRepository
+    private lateinit var devices: dev.agenthub.app.push.FakeDeviceRepository
 
     @Before
     fun setUp() {
@@ -35,7 +36,8 @@ class AuthRepositoryTest {
             .addConverterFactory(Json { ignoreUnknownKeys = true }.asConverterFactory("application/json".toMediaType()))
             .build()
             .create(AuthApi::class.java)
-        repo = DefaultAuthRepository(api, store, TestDispatchers(Dispatchers.Unconfined))
+        devices = dev.agenthub.app.push.FakeDeviceRepository()
+        repo = DefaultAuthRepository(api, store, TestDispatchers(Dispatchers.Unconfined), devices)
     }
 
     @After
@@ -77,6 +79,23 @@ class AuthRepositoryTest {
 
         repo.signOut()
 
+        assertNull(store.current())
+    }
+
+    @Test
+    fun signOutUnregistersThePushDevice() = runTest {
+        store.save(Session("a", "r"))
+        server.enqueue(MockResponse().setResponseCode(204))
+        repo.signOut()
+        assertEquals(1, devices.unregisterCalls)
+    }
+
+    @Test
+    fun signOutStillClearsTheSessionWhenPushCleanupFails() = runTest {
+        store.save(Session("a", "r"))
+        devices.failUnregister = true
+        server.enqueue(MockResponse().setResponseCode(204))
+        repo.signOut()
         assertNull(store.current())
     }
 

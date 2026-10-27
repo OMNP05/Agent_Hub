@@ -8,6 +8,8 @@ import androidx.activity.enableEdgeToEdge
 import dagger.hilt.android.AndroidEntryPoint
 import dev.agenthub.app.agents.oauth.OAuthLinkParser
 import dev.agenthub.app.agents.oauth.OAuthReturnBus
+import dev.agenthub.app.push.ApprovalNotifier
+import dev.agenthub.app.push.NotificationNavigation
 import javax.inject.Inject
 import dev.agenthub.app.core.ui.theme.AgentHubTheme
 import dev.agenthub.app.core.ui.theme.ThemeMode
@@ -15,6 +17,7 @@ import dev.agenthub.app.core.ui.theme.ThemeMode
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @Inject lateinit var oauthReturns: OAuthReturnBus
+    @Inject lateinit var notificationNavigation: NotificationNavigation
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,5 +38,9 @@ class MainActivity : ComponentActivity() {
 
     private fun handleAppLink(intent: Intent?) {
         OAuthLinkParser.parse(intent?.dataString, BuildConfig.APP_LINK_HOST)?.let(oauthReturns::publish)
+        if (intent?.action == ApprovalNotifier.ACTION_OPEN_APPROVAL) {
+            intent.getStringExtra(ApprovalNotifier.EXTRA_APPROVAL_ID)?.takeIf { it.isNotBlank() }
+                ?.let(notificationNavigation::openApproval)
+        }
     }
 }

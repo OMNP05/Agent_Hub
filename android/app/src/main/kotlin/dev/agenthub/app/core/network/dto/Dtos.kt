@@ -51,6 +51,9 @@ data class UpdateAgentRequest(
 )
 
 @Serializable
+data class DeviceRequest(@SerialName("fcm_token") val fcmToken: String)
+
+@Serializable
 data class OAuthStartDto(@SerialName("auth_url") val authUrl: String)
 
 @Serializable

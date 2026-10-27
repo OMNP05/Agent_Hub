@@ -5,6 +5,7 @@ import dev.agenthub.app.core.network.dto.ApprovalDto
 import dev.agenthub.app.core.network.dto.ConversationDto
 import dev.agenthub.app.core.network.dto.CreateAgentRequest
 import dev.agenthub.app.core.network.dto.DecisionRequest
+import dev.agenthub.app.core.network.dto.DeviceRequest
 import dev.agenthub.app.core.network.dto.LogEntryDto
 import dev.agenthub.app.core.network.dto.OAuthStartDto
 import dev.agenthub.app.core.network.dto.RunDto
@@ -39,6 +40,9 @@ interface AgentHubApi {
 
     @GET("runs/{id}") suspend fun run(@Path("id") id: String): Response<RunDto>
     @POST("runs/{id}/cancel") suspend fun cancelRun(@Path("id") id: String): Response<Unit>
+
+    @POST("devices") suspend fun registerDevice(@Body body: DeviceRequest): Response<Unit>
+    @POST("devices/unregister") suspend fun unregisterDevice(@Body body: DeviceRequest): Response<Unit>
 
     @GET("approvals") suspend fun approvals(): Response<List<ApprovalDto>>
     @POST("approvals/{id}/decision") suspend fun decide(@Path("id") id: String, @Body body: DecisionRequest): Response<ApprovalDto>

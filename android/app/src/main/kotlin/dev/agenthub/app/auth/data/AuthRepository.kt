@@ -22,6 +22,7 @@ class DefaultAuthRepository @Inject constructor(
     private val api: AuthApi,
     private val store: SessionStore,
     private val dispatchers: DispatcherProvider,
+    private val devices: dev.agenthub.app.push.DeviceRepository,
 ) : AuthRepository {
 
     override suspend fun signInWithGoogle(idToken: String, nonce: String): AppResult<Unit> =
@@ -46,6 +47,14 @@ class DefaultAuthRepository @Inject constructor(
 
     override suspend fun signOut() {
         withContext(dispatchers.io) {
+            // A signed-out device must stop receiving approvals. Needs the session, so it goes first; best effort.
+            try {
+                devices.unregister()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                // never block sign-out on push cleanup
+            }
             // Revoking server-side is best effort; the local session is always cleared.
             val refresh = store.current()?.refreshToken
             if (refresh != null) {
