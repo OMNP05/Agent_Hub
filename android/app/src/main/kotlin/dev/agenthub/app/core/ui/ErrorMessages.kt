@@ -3,8 +3,19 @@ package dev.agenthub.app.core.ui
 import androidx.annotation.StringRes
 import dev.agenthub.app.R
 import dev.agenthub.app.core.error.DataError
+import dev.agenthub.app.voice.VoiceError
 
 /** User-facing text for an error; raw backend codes and bodies are never shown. */
+@StringRes
+fun VoiceError.messageRes(): Int = when (this) {
+    VoiceError.Unavailable -> R.string.voice_error_unavailable
+    VoiceError.PermissionDenied -> R.string.voice_error_permission
+    VoiceError.NoSpeech -> R.string.voice_error_no_speech
+    VoiceError.Network -> R.string.voice_error_network
+    VoiceError.Busy -> R.string.voice_error_busy
+    VoiceError.Failed -> R.string.voice_error_failed
+}
+
 @StringRes
 fun DataError.messageRes(): Int = when (this) {
     DataError.Network -> R.string.error_network

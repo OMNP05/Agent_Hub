@@ -17,6 +17,7 @@ import dev.agenthub.app.core.model.MessageRole
 import dev.agenthub.app.core.model.RunEvent
 import dev.agenthub.app.core.model.RunState
 import dev.agenthub.app.core.model.RunStatus
+import dev.agenthub.app.shell.ActiveAgentStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flow
@@ -44,6 +45,7 @@ class ChatViewModelTest {
 
     private lateinit var chats: FakeChatRepository
     private lateinit var stream: FakeChatStream
+    private val activeAgents = ActiveAgentStore()
 
     private fun vm(
         existing: List<dev.agenthub.app.core.model.Conversation> = listOf(conversation("c1", at = 1)),
@@ -51,7 +53,7 @@ class ChatViewModelTest {
         chats = FakeChatRepository().apply { conversations.value = existing }
         stream = FakeChatStream()
         val agents = FakeAgentRepository(listOf(testAgent("a1", name = "Work Gmail")))
-        return ChatViewModel(SavedStateHandle(mapOf("agentId" to "a1")), chats, agents, stream)
+        return ChatViewModel(SavedStateHandle(mapOf("agentId" to "a1")), chats, agents, stream, activeAgents)
     }
 
     private fun stored(id: String, seq: Long, role: MessageRole, text: String, conv: String = "c1") =
@@ -82,7 +84,7 @@ class ChatViewModelTest {
     @Test
     fun failedFirstLoadWithNothingCachedIsABlockingError() {
         chats = FakeChatRepository().apply { refreshConversationsResult = AppResult.Failure(DataError.Network) }
-        val v = ChatViewModel(SavedStateHandle(mapOf("agentId" to "a1")), chats, FakeAgentRepository(), FakeChatStream())
+        val v = ChatViewModel(SavedStateHandle(mapOf("agentId" to "a1")), chats, FakeAgentRepository(), FakeChatStream(), ActiveAgentStore())
         assertEquals(DataError.Network, v.uiState.value.loadError)
     }
 
@@ -92,7 +94,7 @@ class ChatViewModelTest {
             conversations.value = listOf(conversation("c1"))
             refreshConversationsResult = AppResult.Failure(DataError.Network)
         }
-        val v = ChatViewModel(SavedStateHandle(mapOf("agentId" to "a1")), chats, FakeAgentRepository(), FakeChatStream())
+        val v = ChatViewModel(SavedStateHandle(mapOf("agentId" to "a1")), chats, FakeAgentRepository(), FakeChatStream(), ActiveAgentStore())
         assertNull(v.uiState.value.loadError)
     }
 

@@ -19,6 +19,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.compose.runtime.LaunchedEffect
 import dev.agenthub.app.navigation.ActivityRoute
 import dev.agenthub.app.navigation.AppNavHost
+import dev.agenthub.app.navigation.ChatRoute
 import dev.agenthub.app.navigation.TopLevelDestination
 import dev.agenthub.app.shell.MiniBar
 import dev.agenthub.app.shell.ShellViewModel
@@ -44,7 +45,12 @@ fun AppRoot(shellViewModel: ShellViewModel = hiltViewModel()) {
             Column {
                 shell.activeAgent?.let { agent ->
                     // Chat and voice entry points are wired in Phases 6 and 8.
-                    MiniBar(agent = agent, onOpen = {}, onMic = {})
+                    MiniBar(
+                        agent = agent,
+                        onOpen = { navController.navigate(ChatRoute(agent.id)) { launchSingleTop = true } },
+                        // The mic opens the chat already listening; the transcript still needs a tap on Send.
+                        onMic = { navController.navigate(ChatRoute(agent.id, listen = true)) { launchSingleTop = true } },
+                    )
                 }
                 NavigationBar {
                     TopLevelDestination.entries.forEach { tab ->

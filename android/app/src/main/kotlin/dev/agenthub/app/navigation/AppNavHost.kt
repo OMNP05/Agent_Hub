@@ -88,6 +88,7 @@ fun AppNavHost(
         composable<ChatRoute> { entry ->
             val agentId = entry.toRoute<ChatRoute>().agentId
             ChatScreen(
+                startListening = entry.toRoute<ChatRoute>().listen,
                 onBack = { navController.popBackStack() },
                 onOpenAgent = { navController.navigate(AgentDetailRoute(agentId)) },
             )

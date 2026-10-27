@@ -6,6 +6,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.agenthub.app.push.DeviceRepository
 import dev.agenthub.app.push.NotificationNavigation
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,6 +21,7 @@ data class ShellUiState(val activeAgent: ActiveAgent? = null)
 class ShellViewModel @Inject constructor(
     notificationNavigation: NotificationNavigation,
     private val devices: DeviceRepository,
+    private val activeAgents: ActiveAgentStore,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(ShellUiState())
     val uiState: StateFlow<ShellUiState> = _uiState.asStateFlow()
@@ -29,9 +32,8 @@ class ShellViewModel @Inject constructor(
     init {
         // Register this device for pushes once the signed-in shell is shown; a no-op without Firebase configured.
         viewModelScope.launch { devices.register() }
+        activeAgents.agent.onEach { agent -> _uiState.update { it.copy(activeAgent = agent) } }.launchIn(viewModelScope)
     }
 
-    fun setActiveAgent(agent: ActiveAgent?) {
-        _uiState.update { it.copy(activeAgent = agent) }
-    }
+    fun setActiveAgent(agent: ActiveAgent?) = activeAgents.set(agent)
 }

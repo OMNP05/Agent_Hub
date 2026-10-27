@@ -145,5 +145,6 @@ Real backend, Google sign-in, GitHub/Google OAuth, FCM delivery, speech recognit
 | 5 | `feat/agents` | uncommitted | assembleDebug, lintDebug, 98 unit tests pass. Screens, OAuth Custom Tab and App Link never run on a device; App Link host is a placeholder until a domain exists | Done, awaiting commit |
 | 5 commit | `feat/agents` | 5865339 | see above | Pushed |
 | 6 | `feat/chat` | fdbe7b6 | assembleDebug, lintDebug, 147 unit tests pass (SSE via MockWebServer). Screens and real streaming never run on a device; backend chat endpoints are our proposal | Done, pushed |
-| 7 | `feat/approvals-activity` | uncommitted | assembleDebug, lintDebug, 188 unit tests pass. FCM never received on a device (no Firebase project, no google-services.json); approval screens never run on a device | Done, awaiting commit |
-| 8 to 10 | | | | Not started |
+| 7 | `feat/approvals-activity` | 58a5a6d | assembleDebug, lintDebug, 188 unit tests pass. FCM never received on a device (no Firebase project, no google-services.json); approval screens never run on a device | Done, pushed |
+| 8 | `feat/voice` | uncommitted | assembleDebug, lintDebug, 221 unit tests pass (incl. a guard that voice code never references approvals). SpeechRecognizer and TextToSpeech never run on a device; recognition quality for Hindi untested | Done, awaiting commit |
+| 9 to 10 | | | | Not started |

@@ -1,6 +1,22 @@
 package dev.agenthub.app.chat.ui
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.MicOff
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.semantics.contentDescription
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
+import dev.agenthub.app.voice.VoiceEffect
+import dev.agenthub.app.voice.VoiceUiState
+import dev.agenthub.app.voice.VoiceViewModel
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -68,12 +84,64 @@ import dev.agenthub.app.core.ui.messageRes
 
 @Composable
 fun ChatScreen(
+    startListening: Boolean,
     onBack: () -> Unit,
     onOpenAgent: () -> Unit,
     viewModel: ChatViewModel = hiltViewModel(),
+    voiceViewModel: VoiceViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val voice by voiceViewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+
+    val micPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        if (granted) voiceViewModel.onMicTap() else voiceViewModel.onPermissionDenied()
+    }
+    val onMic: () -> Unit = {
+        if (voice.isListening) {
+            voiceViewModel.stopListening()
+        } else if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+            voiceViewModel.onMicTap()
+        } else {
+            micPermission.launch(Manifest.permission.RECORD_AUDIO)
+        }
+    }
+
+    // Opened from the mini-bar mic: start listening once, not again after rotation.
+    var autoStarted by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(startListening) {
+        if (startListening && !autoStarted) {
+            autoStarted = true
+            onMic()
+        }
+    }
+    LaunchedEffect(voiceViewModel) {
+        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            voiceViewModel.effects.collect { effect ->
+                when (effect) {
+                    is VoiceEffect.Transcript -> viewModel.onTranscript(effect.text)
+                }
+            }
+        }
+    }
+    // Read the reply aloud only when this run was started from a voice draft; stop when leaving.
+    val running = state.isRunning
+    LaunchedEffect(running) {
+        if (!running && state.replyByVoice) viewModel.lastAssistantText()?.let(voiceViewModel::speak)
+    }
+    DisposableEffect(Unit) {
+        onDispose {
+            voiceViewModel.stopSpeaking()
+            voiceViewModel.stopListening()
+        }
+    }
+    LaunchedEffect(voice.error) {
+        voice.error?.let {
+            Toast.makeText(context, it.messageRes(), Toast.LENGTH_LONG).show()
+            voiceViewModel.onErrorShown()
+        }
+    }
 
     LaunchedEffect(state.actionError) {
         state.actionError?.let {
@@ -84,6 +152,9 @@ fun ChatScreen(
 
     ChatContent(
         state = state,
+        voice = voice,
+        onMic = onMic,
+        onLanguage = voiceViewModel::onLanguageToggle,
         onBack = onBack,
         onOpenAgent = onOpenAgent,
         onInputChange = viewModel::onInputChange,
@@ -104,6 +175,9 @@ fun ChatScreen(
 @Composable
 fun ChatContent(
     state: ChatUiState,
+    voice: VoiceUiState,
+    onMic: () -> Unit,
+    onLanguage: () -> Unit,
     onBack: () -> Unit,
     onOpenAgent: () -> Unit,
     onInputChange: (String) -> Unit,
@@ -160,7 +234,7 @@ fun ChatContent(
                 },
             )
         },
-        bottomBar = { Composer(state, onInputChange, onSend, onStop) },
+        bottomBar = { Composer(state, voice, onMic, onLanguage, onInputChange, onSend, onStop) },
     ) { padding ->
         Box(Modifier.fillMaxSize().padding(padding)) {
             when {
@@ -293,16 +367,43 @@ private fun InfoCard(title: String, subtitle: String) {
 @Composable
 private fun Composer(
     state: ChatUiState,
+    voice: VoiceUiState,
+    onMic: () -> Unit,
+    onLanguage: () -> Unit,
     onInputChange: (String) -> Unit,
     onSend: () -> Unit,
     onStop: () -> Unit,
 ) {
+    val languageDescription = stringResource(R.string.voice_language, voice.language.tag)
     Surface(tonalElevation = 3.dp) {
+        Column(Modifier.fillMaxWidth().navigationBarsPadding().imePadding()) {
+            // Live words while speaking, or a reminder to check a finished transcript before sending.
+            when {
+                voice.isListening -> Text(
+                    voice.partial.ifBlank { stringResource(R.string.voice_listening) },
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp).semantics { liveRegion = LiveRegionMode.Polite },
+                )
+                state.voiceDraft -> Text(
+                    stringResource(R.string.voice_review_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                )
+            }
         Row(
-            Modifier.fillMaxWidth().navigationBarsPadding().imePadding().padding(horizontal = 12.dp, vertical = 8.dp),
+            Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
             verticalAlignment = Alignment.Bottom,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
+            TextButton(
+                onClick = onLanguage,
+                enabled = !voice.isListening && !state.isRunning,
+                modifier = Modifier.heightIn(min = 48.dp),
+            ) {
+                Text(voice.language.label, modifier = Modifier.semantics { contentDescription = languageDescription })
+            }
             OutlinedTextField(
                 value = state.input,
                 onValueChange = onInputChange,
@@ -310,6 +411,13 @@ private fun Composer(
                 maxLines = 5,
                 modifier = Modifier.weight(1f),
             )
+            IconButton(onClick = onMic, enabled = !state.isRunning, modifier = Modifier.heightIn(min = 48.dp)) {
+                Icon(
+                    if (voice.isListening) Icons.Filled.MicOff else Icons.Filled.Mic,
+                    contentDescription = stringResource(if (voice.isListening) R.string.voice_stop else R.string.voice_mic),
+                    tint = if (voice.isListening) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
+                )
+            }
             if (state.isRunning) {
                 FilledIconButton(onClick = onStop, modifier = Modifier.heightIn(min = 48.dp)) {
                     Icon(Icons.Filled.Stop, contentDescription = stringResource(R.string.chat_stop))
@@ -319,6 +427,7 @@ private fun Composer(
                     Icon(Icons.AutoMirrored.Filled.Send, contentDescription = stringResource(R.string.chat_send))
                 }
             }
+        }
         }
     }
 }

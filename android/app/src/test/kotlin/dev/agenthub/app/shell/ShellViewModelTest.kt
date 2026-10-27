@@ -21,13 +21,13 @@ class ShellViewModelTest {
     @Test
     fun registersTheDeviceForPushOnStart() {
         val devices = FakeDeviceRepository()
-        ShellViewModel(NotificationNavigation(), devices)
+        ShellViewModel(NotificationNavigation(), devices, ActiveAgentStore())
         assertEquals(1, devices.registerCalls)
     }
 
     @Test
     fun startsWithNoActiveAgentAndTracksSelection() {
-        val vm = ShellViewModel(NotificationNavigation(), FakeDeviceRepository())
+        val vm = ShellViewModel(NotificationNavigation(), FakeDeviceRepository(), ActiveAgentStore())
         assertNull(vm.uiState.value.activeAgent)
 
         val agent = ActiveAgent("a1", "Work Gmail")

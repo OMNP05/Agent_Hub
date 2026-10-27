@@ -123,6 +123,18 @@
     <string name="activity_notifications_denied">Notifications are off, so you will not hear about approvals. You can still review them here.</string>
     <string name="activity_enable_notifications">Turn on</string>
 
+    <string name="voice_mic">Speak a message</string>
+    <string name="voice_stop">Stop listening</string>
+    <string name="voice_listening">Listening…</string>
+    <string name="voice_language">Voice language: %1$s</string>
+    <string name="voice_review_hint">Check what was heard, edit if needed, then tap Send.</string>
+    <string name="voice_error_unavailable">Speech recognition is not available on this device.</string>
+    <string name="voice_error_permission">Microphone access is off. Turn it on in Settings to use voice.</string>
+    <string name="voice_error_no_speech">I did not catch that. Try again.</string>
+    <string name="voice_error_network">Speech recognition needs a connection. Try again.</string>
+    <string name="voice_error_busy">The microphone is busy. Try again in a moment.</string>
+    <string name="voice_error_failed">Voice input failed. Try again.</string>
+
     <string name="chat_title_fallback">Chat</string>
     <string name="chat_open">Open chat</string>
     <string name="chat_input_hint">Message %1$s</string>

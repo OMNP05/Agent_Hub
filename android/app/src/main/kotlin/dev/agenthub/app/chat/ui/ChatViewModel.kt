@@ -15,6 +15,8 @@ import dev.agenthub.app.core.model.Conversation
 import dev.agenthub.app.core.model.RunEvent
 import dev.agenthub.app.core.model.RunStatus
 import dev.agenthub.app.navigation.ChatRoute
+import dev.agenthub.app.shell.ActiveAgent
+import dev.agenthub.app.shell.ActiveAgentStore
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
@@ -47,6 +49,10 @@ data class ChatUiState(
     val showHistory: Boolean = false,
     val showClearConfirm: Boolean = false,
     val actionError: DataError? = null,
+    /** True while the text in the box came from speech and has not been edited. */
+    val voiceDraft: Boolean = false,
+    /** Set when the last message was sent after a voice draft; the reply is then read aloud. */
+    val replyByVoice: Boolean = false,
 ) {
     val canSend: Boolean get() = input.isNotBlank() && !isRunning && !isLoading
     val isEmpty: Boolean get() = !isLoading && loadError == null && items.isEmpty()
@@ -59,6 +65,7 @@ class ChatViewModel @Inject constructor(
     private val chats: ChatRepository,
     agents: AgentRepository,
     private val stream: ChatStream,
+    private val activeAgents: ActiveAgentStore,
 ) : ViewModel() {
 
     private val agentId: String = savedStateHandle.get<String>(ChatRoute::agentId.name).orEmpty()
@@ -75,7 +82,16 @@ class ChatViewModel @Inject constructor(
 
     init {
         agents.observeAgents()
-            .onEach { list -> list.firstOrNull { it.id == agentId }?.let { a -> _uiState.update { it.copy(agentName = a.name) } } }
+            .onEach { list ->
+                val agent = list.firstOrNull { it.id == agentId }
+                if (agent != null) {
+                    _uiState.update { it.copy(agentName = agent.name) }
+                    // The mini-bar follows the chat the user last opened.
+                    activeAgents.set(ActiveAgent(agent.id, agent.name))
+                } else if (list.isNotEmpty() && activeAgents.agent.value?.id == agentId) {
+                    activeAgents.set(null)
+                }
+            }
             .launchIn(viewModelScope)
 
         chats.observeConversations(agentId)
@@ -120,7 +136,19 @@ class ChatViewModel @Inject constructor(
         if (id != null) viewModelScope.launch { chats.refreshMessages(id) }
     }
 
-    fun onInputChange(value: String) = _uiState.update { it.copy(input = value.take(MAX_MESSAGE)) }
+    fun onInputChange(value: String) = _uiState.update { it.copy(input = value.take(MAX_MESSAGE), voiceDraft = false) }
+
+    /**
+     * Puts a spoken transcript in the message box. It is never sent automatically: the user reads and
+     * edits it first, then taps Send (blueprint 3.2).
+     */
+    fun onTranscript(text: String) = _uiState.update { state ->
+        val joined = if (state.input.isBlank()) text else state.input.trimEnd() + " " + text
+        state.copy(input = joined.take(MAX_MESSAGE), voiceDraft = true)
+    }
+
+    /** Returns the text of the last assistant reply once a voice-started run completes, for reading aloud. */
+    fun lastAssistantText(): String? = _uiState.value.items.lastOrNull { it is ChatItem.Assistant }?.let { (it as ChatItem.Assistant).text }
 
     fun onSend() {
         val state = _uiState.value
@@ -129,6 +157,8 @@ class ChatViewModel @Inject constructor(
         _uiState.update {
             it.copy(
                 input = "",
+                voiceDraft = false,
+                replyByVoice = state.voiceDraft,
                 isRunning = true,
                 actionError = null,
                 items = ChatReducer.withUserMessage(it.items, UUID.randomUUID().toString(), text),
