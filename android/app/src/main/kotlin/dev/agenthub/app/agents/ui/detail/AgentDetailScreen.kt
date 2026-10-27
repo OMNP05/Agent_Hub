@@ -57,6 +57,7 @@ import dev.agenthub.app.core.ui.messageRes
 @Composable
 fun AgentDetailScreen(
     onBack: () -> Unit,
+    onOpenChat: () -> Unit,
     viewModel: AgentDetailViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -78,7 +79,7 @@ fun AgentDetailScreen(
         }
     }
 
-    AgentDetailContent(state, onBack, viewModel)
+    AgentDetailContent(state, onBack, onOpenChat, viewModel)
 }
 
 private fun DetailMessage.res(): Int = when (this) {
@@ -90,7 +91,7 @@ private fun DetailMessage.res(): Int = when (this) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun AgentDetailContent(state: AgentDetailUiState, onBack: () -> Unit, vm: AgentDetailViewModel) {
+private fun AgentDetailContent(state: AgentDetailUiState, onBack: () -> Unit, onOpenChat: () -> Unit, vm: AgentDetailViewModel) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -113,7 +114,7 @@ private fun AgentDetailContent(state: AgentDetailUiState, onBack: () -> Unit, vm
                     title = stringResource(R.string.error_generic),
                     message = stringResource(R.string.detail_not_found),
                 )
-                else -> DetailBody(state, vm)
+                else -> DetailBody(state, onOpenChat, vm)
             }
         }
     }
@@ -134,7 +135,7 @@ private fun AgentDetailContent(state: AgentDetailUiState, onBack: () -> Unit, vm
 }
 
 @Composable
-private fun DetailBody(state: AgentDetailUiState, vm: AgentDetailViewModel) {
+private fun DetailBody(state: AgentDetailUiState, onOpenChat: () -> Unit, vm: AgentDetailViewModel) {
     val agent = state.agent ?: return
     val template = state.template
     Column(
@@ -146,6 +147,12 @@ private fun DetailBody(state: AgentDetailUiState, vm: AgentDetailViewModel) {
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.primary,
         )
+
+        if (!state.needsConnection) {
+            Button(onClick = onOpenChat, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
+                Text(stringResource(R.string.chat_open))
+            }
+        }
 
         ConnectionSection(state, vm)
         HorizontalDivider()

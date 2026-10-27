@@ -93,5 +93,30 @@
 
     <string name="connectors_agent_row">%1$s</string>
 
+    <string name="chat_title_fallback">Chat</string>
+    <string name="chat_open">Open chat</string>
+    <string name="chat_input_hint">Message %1$s</string>
+    <string name="chat_send">Send</string>
+    <string name="chat_stop">Stop</string>
+    <string name="chat_new">New chat</string>
+    <string name="chat_history">Chat history</string>
+    <string name="chat_history_empty">No earlier chats</string>
+    <string name="chat_history_untitled">Untitled chat</string>
+    <string name="chat_clear_history">Clear all history</string>
+    <string name="chat_clear_title">Clear all history?</string>
+    <string name="chat_clear_message">All chats with this agent are deleted. This cannot be undone.</string>
+    <string name="chat_clear_confirm">Clear</string>
+    <string name="chat_delete_conversation">Delete chat</string>
+    <string name="chat_empty_title">Start a conversation</string>
+    <string name="chat_empty_message">Ask this agent something, for example about your pull requests, mail or calendar.</string>
+    <string name="chat_tool_running">Working: %1$s</string>
+    <string name="chat_tool_stopped">Stopped: %1$s</string>
+    <string name="chat_tool_done">%1$s</string>
+    <string name="chat_approval_waiting">Waiting for your approval: %1$s</string>
+    <string name="chat_approval_hint">Open the Activity tab to review it.</string>
+    <string name="chat_assistant_label">Assistant</string>
+    <string name="chat_you_label">You</string>
+    <string name="chat_open_agent">Agent settings</string>
+
     <string name="error_generic">Something went wrong. Please try again.</string>
 </resources>

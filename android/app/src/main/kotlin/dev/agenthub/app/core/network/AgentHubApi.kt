@@ -7,6 +7,7 @@ import dev.agenthub.app.core.network.dto.CreateAgentRequest
 import dev.agenthub.app.core.network.dto.DecisionRequest
 import dev.agenthub.app.core.network.dto.LogEntryDto
 import dev.agenthub.app.core.network.dto.OAuthStartDto
+import dev.agenthub.app.core.network.dto.RunDto
 import dev.agenthub.app.core.network.dto.MessageDto
 import dev.agenthub.app.core.network.dto.UpdateAgentRequest
 import retrofit2.Response
@@ -35,6 +36,9 @@ interface AgentHubApi {
     @DELETE("conversations/{id}") suspend fun deleteConversation(@Path("id") id: String): Response<Unit>
     @GET("conversations/{id}/messages")
     suspend fun messages(@Path("id") conversationId: String, @Query("after_seq") afterSeq: Long?): Response<List<MessageDto>>
+
+    @GET("runs/{id}") suspend fun run(@Path("id") id: String): Response<RunDto>
+    @POST("runs/{id}/cancel") suspend fun cancelRun(@Path("id") id: String): Response<Unit>
 
     @GET("approvals") suspend fun approvals(): Response<List<ApprovalDto>>
     @POST("approvals/{id}/decision") suspend fun decide(@Path("id") id: String, @Body body: DecisionRequest): Response<ApprovalDto>

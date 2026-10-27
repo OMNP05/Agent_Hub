@@ -19,6 +19,8 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
+import dev.agenthub.app.chat.ui.ChatScreen
 import dev.agenthub.app.R
 import dev.agenthub.app.agents.ui.connectors.ConnectorsScreen
 import dev.agenthub.app.agents.ui.detail.AgentDetailScreen
@@ -53,7 +55,7 @@ fun AppNavHost(
     ) {
         composable<HomeRoute> {
             HomeScreen(
-                onOpenAgent = { navController.navigate(AgentDetailRoute(it)) },
+                onOpenAgent = { navController.navigate(ChatRoute(it)) },
                 onNewAgent = { navController.navigate(NewAgentRoute) },
                 onPickTemplate = { navController.navigate(AgentSetupRoute(it)) },
             )
@@ -75,8 +77,19 @@ fun AppNavHost(
                 },
             )
         }
-        composable<AgentDetailRoute> {
-            AgentDetailScreen(onBack = { navController.popBackStack() })
+        composable<AgentDetailRoute> { entry ->
+            val agentId = entry.toRoute<AgentDetailRoute>().agentId
+            AgentDetailScreen(
+                onBack = { navController.popBackStack() },
+                onOpenChat = { navController.navigate(ChatRoute(agentId)) },
+            )
+        }
+        composable<ChatRoute> { entry ->
+            val agentId = entry.toRoute<ChatRoute>().agentId
+            ChatScreen(
+                onBack = { navController.popBackStack() },
+                onOpenAgent = { navController.navigate(AgentDetailRoute(agentId)) },
+            )
         }
         // Activity and Settings are filled in by later phases (7 and 9).
         composable<ActivityRoute> {

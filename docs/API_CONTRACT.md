@@ -15,4 +15,26 @@ Status: **proposal**, not agreed with the backend (architecture section 7 is not
 | `GET /agents/{id}/logs` | activity log |
 | `POST /devices` | FCM token |
 
-SSE events: `run.started`, `message.delta`, `tool.started`, `tool.finished`, `approval.required`, `run.completed`, `run.error` (architecture 3.10). Error body: `{"error": {"code": "llm_key_invalid"}}`; the app maps codes to messages.
+Error body: `{"error": {"code": "llm_key_invalid"}}`; the app maps codes to messages. Unknown codes show a generic message.
+
+## Chat and runs (proposal)
+
+- `POST /agents/{id}/chat` body `{"conversation_id": "...", "message": "..."}`, response `text/event-stream`. A second message while a run is active returns `409 {"error":{"code":"agent_busy"}}`.
+- `GET /runs/{id}/events` with header `Last-Event-ID` resumes the stream after a dropped connection.
+- `GET /runs/{id}` returns `{"id", "status", "error_code"?}`; `status` is one of `queued, running, awaiting_approval, completed, failed, cancelled, expired`.
+- `POST /runs/{id}/cancel` stops a run.
+- `GET /agents/{id}/conversations`, `POST /agents/{id}/conversations` (New chat), `DELETE /agents/{id}/conversations` (clear history), `DELETE /conversations/{id}`, `GET /conversations/{id}/messages?after_seq=`.
+
+Each SSE message has an increasing `id:`, an `event:` name and a JSON `data:` line (architecture 3.10):
+
+| event | data |
+|---|---|
+| `run.started` | `{"run_id", "conversation_id"}` |
+| `message.delta` | `{"text"}` |
+| `tool.started` | `{"tool_call_id", "tool"}` |
+| `tool.finished` | `{"tool_call_id", "tool", "summary", "ok"}` (summary is the trimmed text, never raw provider data) |
+| `approval.required` | `{"approval_id", "tool"}` (stream ends; the run waits in the database) |
+| `run.completed` | `{"message_id"}` |
+| `run.error` | `{"code"}` |
+
+Stored message `content` is an array of blocks: `{"type":"text","text"}`, `{"type":"tool_call","id","tool","args"}`, `{"type":"tool_result_summary","tool_call_id","summary"}`.

@@ -14,7 +14,12 @@ import dev.agenthub.app.approvals.data.ApprovalRepository
 import dev.agenthub.app.approvals.data.DefaultApprovalRepository
 import dev.agenthub.app.chat.data.ChatRepository
 import dev.agenthub.app.chat.data.DefaultChatRepository
+import dev.agenthub.app.BuildConfig
+import dev.agenthub.app.chat.data.ChatStream
+import dev.agenthub.app.chat.data.OkHttpChatStream
 import dev.agenthub.app.core.network.AgentHubApi
+import okhttp3.HttpUrl.Companion.toHttpUrl
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import javax.inject.Named
 import javax.inject.Singleton
@@ -32,6 +37,13 @@ object DatabaseModule {
     @Provides fun agentDao(db: AppDatabase): AgentDao = db.agentDao()
     @Provides fun conversationDao(db: AppDatabase): ConversationDao = db.conversationDao()
     @Provides fun messageDao(db: AppDatabase): MessageDao = db.messageDao()
+
+    /** SSE needs no read timeout: a run can be quiet for a while between events. */
+    @Provides @Singleton
+    fun chatStream(@Named("authed") client: OkHttpClient): ChatStream = OkHttpChatStream(
+        client.newBuilder().readTimeout(0, java.util.concurrent.TimeUnit.SECONDS).build(),
+        BuildConfig.API_BASE_URL.toHttpUrl(),
+    )
 
     @Provides @Singleton
     fun agentHubApi(@Named("authed") retrofit: Retrofit): AgentHubApi = retrofit.create(AgentHubApi::class.java)

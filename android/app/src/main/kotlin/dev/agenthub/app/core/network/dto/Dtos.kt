@@ -73,6 +73,13 @@ data class MessageDto(
 )
 
 @Serializable
+data class RunDto(
+    val id: String,
+    val status: String,
+    @SerialName("error_code") val errorCode: String? = null,
+)
+
+@Serializable
 data class ApprovalDto(
     val id: String,
     @SerialName("run_id") val runId: String,

@@ -6,8 +6,11 @@ import dev.agenthub.app.core.database.ConversationEntity
 import dev.agenthub.app.core.database.MessageDao
 import dev.agenthub.app.core.database.MessageEntity
 import dev.agenthub.app.core.error.AppResult
+import dev.agenthub.app.core.error.DataError
 import dev.agenthub.app.core.model.Conversation
 import dev.agenthub.app.core.model.Message
+import dev.agenthub.app.core.model.RunState
+import dev.agenthub.app.core.model.RunStatus
 import dev.agenthub.app.core.network.AgentHubApi
 import dev.agenthub.app.core.network.apiCall
 import dev.agenthub.app.core.network.apiUnitCall
@@ -31,6 +34,8 @@ interface ChatRepository {
     suspend fun newConversation(agentId: String): AppResult<Conversation>
     suspend fun deleteConversation(id: String): AppResult<Unit>
     suspend fun clearHistory(agentId: String): AppResult<Unit>
+    suspend fun runState(runId: String): AppResult<RunState>
+    suspend fun cancelRun(runId: String): AppResult<Unit>
 }
 
 @Singleton
@@ -104,6 +109,20 @@ class DefaultChatRepository @Inject constructor(
             conversations.clearForAgent(agentId)
         }
         result
+    }
+
+    override suspend fun runState(runId: String): AppResult<RunState> = withContext(dispatchers.io) {
+        when (val result = apiCall { api.run(runId) }) {
+            is AppResult.Failure -> result
+            // An unrecognised status is an error rather than a guess about whether the run is still going.
+            is AppResult.Success -> RunStatus.fromWire(result.value.status)?.let {
+                AppResult.Success(RunState(result.value.id, it, result.value.errorCode?.let(DataError::fromCode)))
+            } ?: AppResult.Failure(DataError.Unknown)
+        }
+    }
+
+    override suspend fun cancelRun(runId: String): AppResult<Unit> = withContext(dispatchers.io) {
+        apiUnitCall { api.cancelRun(runId) }
     }
 
     private fun Conversation.toEntity() = ConversationEntity(id, agentId, title, updatedAt.toEpochMilli())

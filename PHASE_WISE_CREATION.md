@@ -143,4 +143,6 @@ Real backend, Google sign-in, GitHub/Google OAuth, FCM delivery, speech recognit
 | 4 | `feat/data-integration` | uncommitted | assembleDebug, lintDebug, 59 unit tests pass. Room DAOs only tested through fakes (no instrumented tests run); API shapes are our proposal, not checked against a real backend | Done, awaiting commit |
 | 4 commit | `feat/data-integration` | 1543f8f | see above | Pushed |
 | 5 | `feat/agents` | uncommitted | assembleDebug, lintDebug, 98 unit tests pass. Screens, OAuth Custom Tab and App Link never run on a device; App Link host is a placeholder until a domain exists | Done, awaiting commit |
-| 6 to 10 | | | | Not started |
+| 5 commit | `feat/agents` | 5865339 | see above | Pushed |
+| 6 | `feat/chat` | uncommitted | assembleDebug, lintDebug, 147 unit tests pass (SSE via MockWebServer). Screens and real streaming never run on a device; backend chat endpoints are our proposal | Done, awaiting commit |
+| 7 to 10 | | | | Not started |
