@@ -1,7 +1,7 @@
 package dev.agenthub.app.settings.ui
 
 import android.content.Intent
-import android.net.Uri
+import androidx.core.net.toUri
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -57,7 +57,7 @@ fun SettingsScreen(onOpenLlmProfiles: () -> Unit, viewModel: SettingsViewModel =
                         if (effect.url == null) {
                             Toast.makeText(context, R.string.settings_export_started, Toast.LENGTH_LONG).show()
                         } else {
-                            runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(effect.url)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
+                            runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, effect.url.toUri()).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
                                 .onFailure { Toast.makeText(context, R.string.detail_no_browser, Toast.LENGTH_LONG).show() }
                         }
                 }

@@ -25,5 +25,6 @@ fun DataError.messageRes(): Int = when (this) {
     DataError.ConnectionNeedsReauth -> R.string.error_connection_needs_reauth
     DataError.ApprovalExpired -> R.string.error_approval_expired
     DataError.SignInNotConfigured -> R.string.error_sign_in_not_configured
+    DataError.NoGoogleAccount -> R.string.error_no_google_account
     is DataError.Backend, DataError.Unknown -> R.string.error_generic
 }

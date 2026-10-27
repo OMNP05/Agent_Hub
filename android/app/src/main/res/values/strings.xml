@@ -9,12 +9,9 @@
 
     <string name="home_empty_title">No agents yet</string>
     <string name="home_empty_message">Create a GitHub, Gmail or Calendar agent to get started.</string>
-    <string name="activity_empty_title">Nothing to review</string>
-    <string name="activity_empty_message">Approvals and agent activity will show up here.</string>
     <string name="connectors_empty_title">No connections</string>
     <string name="connectors_empty_message">Connect an agent to GitHub or Google and its status will appear here.</string>
     <string name="settings_title">Settings</string>
-    <string name="settings_empty_message">LLM profiles, theme and account options will appear here.</string>
 
     <string name="mini_bar_talk">Talk to %1$s</string>
     <string name="mini_bar_open">Open chat with %1$s</string>
@@ -33,6 +30,7 @@
     <string name="error_llm_key_invalid">Check your API key or credits.</string>
     <string name="error_connection_needs_reauth">This agent needs to be reconnected.</string>
     <string name="error_approval_expired">This approval has expired.</string>
+    <string name="error_no_google_account">No Google account found on this device. Add one in Settings, then try again.</string>
     <string name="error_sign_in_not_configured">Google sign-in is not configured in this build.</string>
     <string name="sign_in_title">Welcome to Agent Hub</string>
     <string name="sign_in_subtitle">Single-purpose AI agents for GitHub, Gmail and Calendar, controlled from your phone.</string>
@@ -40,7 +38,6 @@
     <string name="sign_in_loading">Signing in…</string>
     <string name="home_title">Your agents</string>
     <string name="home_recent">Recently used</string>
-    <string name="home_templates">Templates</string>
     <string name="home_new_agent">New agent</string>
     <string name="agent_status_active">Active</string>
     <string name="agent_status_paused">Paused</string>
@@ -64,8 +61,6 @@
     <string name="mode_ask">Ask each time</string>
     <string name="mode_allow">Allow</string>
     <string name="mode_always_ask">Always asks</string>
-    <string name="toggle_state_on">On</string>
-    <string name="toggle_state_off">Off</string>
 
     <string name="detail_connection">Connection</string>
     <string name="detail_connected">Connected</string>
@@ -87,11 +82,9 @@
     <string name="detail_connected_message">Connection updated</string>
     <string name="detail_connection_failed">Connection was not completed</string>
     <string name="detail_disconnected">Disconnected</string>
-    <string name="detail_consent_failed">Could not open the sign-in page.</string>
     <string name="detail_scopes">Granted access: %1$s</string>
     <string name="detail_no_browser">No browser is available to sign in.</string>
 
-    <string name="connectors_agent_row">%1$s</string>
 
     <string name="push_channel_name">Approvals</string>
     <string name="push_channel_description">Requests from your agents that need your approval</string>
@@ -107,17 +100,13 @@
     <string name="approval_reject">Reject</string>
     <string name="approval_exact_notice">This is exactly what will run. It cannot be changed after you approve.</string>
     <string name="approval_dangerous_notice">This affects other people or is hard to undo. Voice cannot approve it.</string>
-    <string name="approval_expires">Expires %1$s</string>
     <string name="approval_decided_approved">Approved</string>
     <string name="approval_decided_rejected">Rejected</string>
-    <string name="approval_decided_expired">Expired</string>
     <string name="approval_already_handled">This request was already handled or has expired.</string>
     <string name="approval_confirm_title">Approve this action?</string>
     <string name="approval_confirm_message">%1$s will run exactly as shown.</string>
     <string name="activity_log_title">Recent activity</string>
     <string name="activity_log_empty">No activity yet</string>
-    <string name="activity_log_agent">Agent</string>
-    <string name="activity_log_all">All</string>
     <string name="activity_log_load_more">Load more</string>
     <string name="activity_log_args">Details</string>
     <string name="activity_notifications_denied">Notifications are off, so you will not hear about approvals. You can still review them here.</string>
@@ -228,8 +217,6 @@
     <string name="chat_tool_done">%1$s</string>
     <string name="chat_approval_waiting">Waiting for your approval: %1$s</string>
     <string name="chat_approval_hint">Open the Activity tab to review it.</string>
-    <string name="chat_assistant_label">Assistant</string>
-    <string name="chat_you_label">You</string>
     <string name="chat_open_agent">Agent settings</string>
 
     <string name="error_generic">Something went wrong. Please try again.</string>

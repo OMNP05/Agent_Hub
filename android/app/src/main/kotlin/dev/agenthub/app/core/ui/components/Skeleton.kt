@@ -53,7 +53,7 @@ fun SkeletonBox(modifier: Modifier = Modifier) {
 
 /** List-shaped loading placeholder, announced once to screen readers. */
 @Composable
-fun SkeletonList(rows: Int = 4, modifier: Modifier = Modifier) {
+fun SkeletonList(modifier: Modifier = Modifier, rows: Int = 4) {
     val description = stringResource(R.string.loading_content_description)
     Column(
         modifier = modifier.padding(16.dp).semantics { contentDescription = description },

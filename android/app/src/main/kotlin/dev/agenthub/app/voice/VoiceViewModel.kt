@@ -97,7 +97,6 @@ class VoiceViewModel @Inject constructor(
 
     override fun onCleared() {
         speaker.stop()
-        super.onCleared()
     }
 }
 

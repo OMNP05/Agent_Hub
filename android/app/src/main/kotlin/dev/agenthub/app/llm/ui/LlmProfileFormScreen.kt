@@ -162,7 +162,7 @@ private fun Field(
     value: String,
     onChange: (String) -> Unit,
     keyboard: KeyboardType = KeyboardType.Text,
-    modifier: Modifier = Modifier.fillMaxWidth(),
+    modifier: Modifier = Modifier,
     hint: String? = null,
 ) {
     val error: FieldError? = state.errors[key]
@@ -175,6 +175,7 @@ private fun Field(
         supportingText = error?.let { { Text(stringResource(it.messageRes())) } },
         keyboardOptions = KeyboardOptions(keyboardType = keyboard, autoCorrectEnabled = false),
         singleLine = true,
-        modifier = modifier,
+        // Callers that share a row pass their own weight; otherwise the field fills the width.
+        modifier = if (modifier == Modifier) Modifier.fillMaxWidth() else modifier,
     )
 }

@@ -6,6 +6,7 @@ import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.credentials.exceptions.GetCredentialException
+import androidx.credentials.exceptions.NoCredentialException
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
@@ -54,6 +55,8 @@ class CredentialManagerGoogleIdTokenProvider @Inject constructor() : GoogleIdTok
             }
         } catch (e: GetCredentialCancellationException) {
             IdTokenResult.Cancelled
+        } catch (e: NoCredentialException) {
+            IdTokenResult.Failed(DataError.NoGoogleAccount)
         } catch (e: GetCredentialException) {
             IdTokenResult.Failed(DataError.Unknown)
         } catch (e: GoogleIdTokenParsingException) {

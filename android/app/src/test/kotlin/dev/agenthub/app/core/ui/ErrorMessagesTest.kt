@@ -15,6 +15,11 @@ class ErrorMessagesTest {
     }
 
     @Test
+    fun missingGoogleAccountHasItsOwnMessage() {
+        assertEquals(R.string.error_no_google_account, DataError.NoGoogleAccount.messageRes())
+    }
+
+    @Test
     fun unrecognisedBackendCodesNeverLeakToTheUser() {
         assertEquals(R.string.error_generic, DataError.Backend("secret_internal_code").messageRes())
         assertEquals(R.string.error_generic, DataError.Unknown.messageRes())

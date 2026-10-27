@@ -12,6 +12,7 @@ sealed interface DataError {
     data object ConnectionNeedsReauth : DataError
     data object ApprovalExpired : DataError
     data object SignInNotConfigured : DataError
+    data object NoGoogleAccount : DataError
     data class Backend(val code: String) : DataError
     data object Unknown : DataError
 
