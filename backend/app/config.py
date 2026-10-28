@@ -27,6 +27,19 @@ class Settings(BaseSettings):
     # Old master keys kept only so old data stays readable during a rotation: "1:<base64>,2:<base64>".
     retired_master_keys: SecretStr = SecretStr("")
 
+    # Provider OAuth (B7). Missing values do not stop the server: the connect endpoints answer 503
+    # oauth_not_configured until they are set.
+    github_app_client_id: str = ""
+    github_app_client_secret: SecretStr = SecretStr("")
+    github_app_slug: str = ""
+    google_connector_client_id: str = ""
+    google_connector_client_secret: SecretStr = SecretStr("")
+    # Host of the verified Android App Link (for example my-service-abc.a.run.app) and the app identity that
+    # /.well-known/assetlinks.json publishes. Fingerprints are public: comma-separated SHA-256 values.
+    app_link_host: str = ""
+    android_package: str = "dev.agenthub.app"
+    android_cert_sha256: str = ""
+
     @field_validator("log_level")
     @classmethod
     def _level(cls, value: str) -> str:

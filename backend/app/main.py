@@ -7,6 +7,7 @@ from app.api import agents as agent_routes
 from app.api import auth as auth_routes
 from app.api import health
 from app.api import llm_profiles as llm_profile_routes
+from app.api import oauth as oauth_routes
 from app.auth.jwt_verifier import JwtVerifier, http_jwks_fetcher
 from app.auth.supabase_client import SupabaseAuth
 from app.config import Settings, get_settings
@@ -15,9 +16,24 @@ from app.db.access import Database, PoolDatabase
 from app.errors import install_error_handlers
 from app.logging_setup import configure_logging
 from app.middleware import RequestIdMiddleware
+from app.oauth.providers import GitHubApp, GoogleConnector
+from app.oauth.service import Providers
 from app.ratelimit import RateLimiter
 
 log = logging.getLogger("agenthub")
+
+
+def _providers_from(settings: Settings) -> Providers:
+    github = google = None
+    if settings.github_app_client_id and settings.github_app_client_secret.get_secret_value():
+        github = GitHubApp(
+            settings.github_app_client_id, settings.github_app_client_secret.get_secret_value()
+        )
+    if settings.google_connector_client_id and settings.google_connector_client_secret.get_secret_value():
+        google = GoogleConnector(
+            settings.google_connector_client_id, settings.google_connector_client_secret.get_secret_value()
+        )
+    return Providers(github=github, google=google)
 
 
 def create_app(
@@ -26,6 +42,7 @@ def create_app(
     verifier: JwtVerifier | None = None,
     db: Database | None = None,
     envelope: Envelope | None = None,
+    providers: Providers | None = None,
 ) -> FastAPI:
     """App factory. Tests pass their own Settings and verifier; production reads the environment."""
     settings = settings or get_settings()
@@ -56,6 +73,9 @@ def create_app(
     # Each key check makes an outbound call to a provider, so it is limited per user.
     app.state.llm_test_limiter = RateLimiter(limit=10, window_seconds=60)
     app.state.kill_limiter = RateLimiter(limit=10, window_seconds=60)
+    app.state.oauth_limiter = RateLimiter(limit=20, window_seconds=60)
+    app.state.oauth_callback_limiter = RateLimiter(limit=30, window_seconds=60)
+    app.state.providers = providers or _providers_from(settings)
 
     database_url = settings.database_url.get_secret_value()
     app.state.db = db or (PoolDatabase(database_url) if database_url else None)
@@ -87,6 +107,7 @@ def create_app(
     app.include_router(auth_routes.router)
     app.include_router(llm_profile_routes.router)
     app.include_router(agent_routes.router)
+    app.include_router(oauth_routes.router)
     return app
 
 

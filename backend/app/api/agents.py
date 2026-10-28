@@ -9,8 +9,12 @@ from fastapi import APIRouter, Depends, Request, Response
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, field_validator
 
 from app.agents import store
+from app.api.oauth import get_providers
 from app.auth.dependencies import CurrentUser
+from app.crypto import Envelope
 from app.db.access import Db, run_db
+from app.oauth import service as oauth_service
+from app.oauth.service import Providers
 from app.ratelimit import RateLimiter
 from app.validation import multi_line, single_line
 
@@ -126,14 +130,38 @@ async def update_agent(
     return await run_db(db, store.update_agent, user.user_id, agent_id, fields)
 
 
+async def _revoke_first(
+    db: Db, env: Envelope | None, providers: Providers, user_id: uuid.UUID, agent_id: uuid.UUID
+) -> None:
+    """Asks the provider to invalidate the agent's tokens BEFORE the local rows go. Best effort: an
+    unreachable provider never blocks the user from disconnecting; tokens are deleted locally either way."""
+    await run_db(db, store.require_owned_agent, user_id, agent_id)  # 404 for someone else's agent
+    if env is not None:
+        await oauth_service.revoke_at_provider(db, env, providers, user_id=user_id, agent_id=agent_id)
+
+
 @router.delete("/agents/{agent_id}", status_code=204)
-async def delete_agent(agent_id: uuid.UUID, user: CurrentUser, db: Db) -> Response:
+async def delete_agent(
+    agent_id: uuid.UUID,
+    user: CurrentUser,
+    db: Db,
+    request: Request,
+    providers: Annotated[Providers, Depends(get_providers)],
+) -> Response:
+    await _revoke_first(db, getattr(request.app.state, "envelope", None), providers, user.user_id, agent_id)
     await run_db(db, store.delete_agent, user.user_id, agent_id)
     return Response(status_code=204)
 
 
 @router.delete("/agents/{agent_id}/connection", status_code=204)
-async def disconnect_agent(agent_id: uuid.UUID, user: CurrentUser, db: Db) -> Response:
+async def disconnect_agent(
+    agent_id: uuid.UUID,
+    user: CurrentUser,
+    db: Db,
+    request: Request,
+    providers: Annotated[Providers, Depends(get_providers)],
+) -> Response:
+    await _revoke_first(db, getattr(request.app.state, "envelope", None), providers, user.user_id, agent_id)
     await run_db(db, store.disconnect, user.user_id, agent_id)
     return Response(status_code=204)
 

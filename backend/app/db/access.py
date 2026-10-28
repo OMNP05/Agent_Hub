@@ -86,3 +86,24 @@ async def run_db[T](db: Database, fn: Callable[..., T], *args) -> T:
             raise ApiError("service_unavailable", 503) from None
 
     return await run_in_threadpool(call)
+
+
+@contextlib.asynccontextmanager
+async def transaction(db: Database):
+    """One transaction held across awaits (for example around a provider call). The connection is entered and
+    left in worker threads; commit on success, rollback on any exception, always released."""
+    manager = db.connection()
+    conn = await run_in_threadpool(manager.__enter__)
+    try:
+        yield conn
+    except BaseException as e:
+        suppressed = await run_in_threadpool(manager.__exit__, type(e), e, e.__traceback__)
+        if not suppressed:
+            raise
+    else:
+        await run_in_threadpool(manager.__exit__, None, None, None)
+
+
+async def in_thread[T](fn: Callable[..., T], *args) -> T:
+    """Runs a blocking database step on the connection held by [transaction]."""
+    return await run_in_threadpool(fn, *args)

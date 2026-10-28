@@ -130,3 +130,52 @@ def rotate(conn: psycopg.Connection, env: Envelope) -> dict[str, int]:
             )
             changed[table] += 1
     return changed
+
+
+# -- provider tokens with a version for safe concurrent refresh ---------------------------------------------
+
+
+def load_connection_tokens_versioned(
+    conn: psycopg.Connection, env: Envelope, connection_id: uuid.UUID
+) -> tuple[str, str | None, object] | None:
+    """Like load_connection_tokens, plus the row's `updated_at` as a version for compare-and-swap."""
+    row = conn.execute(
+        "select access_token_enc, refresh_token_enc, updated_at from public.connection_secrets "
+        "where connection_id = %s",
+        (connection_id,),
+    ).fetchone()
+    if row is None:
+        return None
+    access = env.decrypt_text(bytes(row[0]), _ctx("connection_secrets", "access_token_enc", connection_id))
+    refresh = (
+        env.decrypt_text(bytes(row[1]), _ctx("connection_secrets", "refresh_token_enc", connection_id))
+        if row[1] is not None
+        else None
+    )
+    return access, refresh, row[2]
+
+
+def replace_connection_tokens_if_unchanged(
+    conn: psycopg.Connection,
+    env: Envelope,
+    connection_id: uuid.UUID,
+    expected_version: object,
+    access_token: str,
+    refresh_token: str | None,
+) -> bool:
+    """Saves new tokens only if nobody else saved since [expected_version] was read. Returns False when
+    another refresh won the race (the caller then re-reads and uses the winner's tokens)."""
+    access = env.encrypt(access_token, _ctx("connection_secrets", "access_token_enc", connection_id))
+    refresh = (
+        env.encrypt(refresh_token, _ctx("connection_secrets", "refresh_token_enc", connection_id))
+        if refresh_token
+        else None
+    )
+    changed = conn.execute(
+        "update public.connection_secrets set access_token_enc = %s, "
+        "refresh_token_enc = coalesce(%s, refresh_token_enc), key_version = %s, "
+        "updated_at = clock_timestamp() "
+        "where connection_id = %s and updated_at = %s returning 1",
+        (access, refresh, env.current_version, connection_id, expected_version),
+    ).fetchone()
+    return changed is not None

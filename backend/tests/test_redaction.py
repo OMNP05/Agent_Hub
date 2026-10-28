@@ -143,3 +143,19 @@ def test_ids_are_omitted_when_not_set():
     logger.info("plain")
     line = json.loads(stream.getvalue())
     assert "request_id" not in line and "run_id" not in line
+
+
+def test_http_client_libraries_do_not_log_request_urls(caplog):
+    """Their INFO lines print full URLs, which can carry OAuth codes, state and tokens."""
+    import logging
+
+    from app.logging_setup import configure_logging
+
+    configure_logging("DEBUG")
+    caplog.set_level(logging.DEBUG)
+    for name in ("httpx", "httpx2", "httpcore", "httpcore2", "anthropic", "openai"):
+        logging.getLogger(name).info(
+            'HTTP Request: GET https://x.test/cb?code=SECRETCODE&state=SECRETSTATE "200"'
+        )
+        logging.getLogger(name).debug("connect to https://x.test/?token=SECRETTOKEN")
+    assert "SECRET" not in caplog.text

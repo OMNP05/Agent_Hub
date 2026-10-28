@@ -104,3 +104,7 @@ def configure_logging(level: str = "INFO") -> None:
     root.setLevel(level)
     # Access logs would print full URLs, which can carry OAuth codes and state.
     logging.getLogger("uvicorn.access").disabled = True
+    # HTTP client libraries log the full URL of every request at INFO, and URLs can carry OAuth codes, state
+    # and tokens. Warnings and errors still come through; the request line does not.
+    for noisy in ("httpx", "httpx2", "httpcore", "httpcore2", "anthropic", "openai"):
+        logging.getLogger(noisy).setLevel(logging.WARNING)
