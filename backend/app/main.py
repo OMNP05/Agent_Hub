@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
+from app.api import agents as agent_routes
 from app.api import auth as auth_routes
 from app.api import health
 from app.api import llm_profiles as llm_profile_routes
@@ -54,6 +55,7 @@ def create_app(
     app.state.signin_limiter = RateLimiter(limit=10, window_seconds=60)
     # Each key check makes an outbound call to a provider, so it is limited per user.
     app.state.llm_test_limiter = RateLimiter(limit=10, window_seconds=60)
+    app.state.kill_limiter = RateLimiter(limit=10, window_seconds=60)
 
     database_url = settings.database_url.get_secret_value()
     app.state.db = db or (PoolDatabase(database_url) if database_url else None)
@@ -84,6 +86,7 @@ def create_app(
     app.include_router(health.router)
     app.include_router(auth_routes.router)
     app.include_router(llm_profile_routes.router)
+    app.include_router(agent_routes.router)
     return app
 
 

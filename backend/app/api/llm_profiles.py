@@ -17,6 +17,7 @@ from app.llm.net import validate_base_url
 from app.llm.profiles import ProfileData
 from app.llm.providers import KeyCheck, ProfileSpec, Provider, check_key
 from app.ratelimit import RateLimiter
+from app.validation import single_line
 
 router = APIRouter(tags=["llm-profiles"])
 
@@ -49,6 +50,11 @@ class ProfileBody(BaseModel):
     max_tokens: int = Field(default=1000, ge=1, le=200_000)
     api_key: str | None = Field(default=None, repr=False)
     is_default: bool = False
+
+    @field_validator("name", "model")
+    @classmethod
+    def _single_line(cls, value: str) -> str:
+        return single_line(value)
 
     @field_validator("base_url")
     @classmethod
