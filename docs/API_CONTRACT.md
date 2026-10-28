@@ -56,3 +56,13 @@ Stored message `content` is an array of blocks: `{"type":"text","text"}`, `{"typ
 - `DELETE /llm-profiles/{id}` deletes a profile and its stored key.
 - `POST /agents/kill-switch` pauses every agent; runs stop at their next Gateway call.
 - `POST /account/export` returns `{"url"}` (https) or an empty url if the export is prepared asynchronously. `DELETE /account` removes the user, agents, connections (revoked at providers first), keys and logs.
+
+
+## Authentication (implemented in backend phase B3)
+
+- `POST /auth/google` body `{"id_token", "nonce"}` (extra fields are rejected with 422) returns `{"access_token", "refresh_token", "expires_in"}`. The backend forwards the Google ID token and the raw nonce to Supabase Auth, which verifies signature, issuer, audience, expiry and nonce. A rejected token is `401 unauthorized`; Supabase being down is `503 auth_unavailable`; more than 10 attempts a minute from one address is `429 rate_limited`.
+- `POST /auth/refresh` body `{"refresh_token"}` returns the same shape. Refresh tokens rotate; a reused or revoked one is `401 unauthorized` and the app must sign the user out.
+- `POST /auth/logout` (Bearer token) returns `204` and revokes every session of the user ("sign out everywhere"). The app clears its own copy regardless of the result.
+- `GET /me` (Bearer token) returns `{"id"}` taken from the verified token only.
+- Every authenticated route checks the access token locally against the project's public signing keys (ES256 or RS256 only; HS256 and `none` are refused). Missing, malformed, expired and forged tokens all give the identical `401 {"error":{"code":"unauthorized"}}`, with no reason.
+- The app must set Supabase's Google provider **Client IDs** to the Web client ID (the same one the Android app uses as its token audience) and use a nonce: Google gets the SHA-256 hex of the nonce, and this endpoint gets the raw nonce.
