@@ -66,3 +66,14 @@ Stored message `content` is an array of blocks: `{"type":"text","text"}`, `{"typ
 - `GET /me` (Bearer token) returns `{"id"}` taken from the verified token only.
 - Every authenticated route checks the access token locally against the project's public signing keys (ES256 or RS256 only; HS256 and `none` are refused). Missing, malformed, expired and forged tokens all give the identical `401 {"error":{"code":"unauthorized"}}`, with no reason.
 - The app must set Supabase's Google provider **Client IDs** to the Web client ID (the same one the Android app uses as its token audience) and use a nonce: Google gets the SHA-256 hex of the nonce, and this endpoint gets the raw nonce.
+
+
+## LLM profiles (implemented in backend phase B5)
+
+- `GET /llm-profiles` returns the caller's profiles. `POST /llm-profiles` returns `201` with the profile; `api_key` is required on create. `PATCH /llm-profiles/{id}` takes the same fields; an omitted or empty `api_key` keeps the stored key. `DELETE /llm-profiles/{id}` returns `204` and removes the stored key; agents that used it fall back to no profile.
+- Bodies reject unknown fields (`user_id`, `key_last4` and so on) with `422 invalid_request`. Limits: name 1 to 60 characters, model 1 to 200, temperature 0 to 2, max_tokens 1 to 200000, API key 8 to 512 printable characters without spaces.
+- `base_url` must be `https`, have no credentials, query or fragment, and must not be an IP address in a private, loopback, link-local or metadata range, `localhost`, or an internal name. An invalid one is `422 invalid_request`. `openai_compatible` requires it. A trailing slash is removed.
+- The first profile a user creates is the default. At most one profile is the default; choosing another moves it, and unticking the default flag on the default profile does not remove it. At most 20 profiles per user (`409 profile_limit_reached`).
+- Another user's profile is `404 not_found`, identical to one that does not exist.
+- `POST /llm-profiles/{id}/test` and `POST /llm-profiles/test` make one authenticated `GET /models` call to the provider (no tokens are spent). Result `{"ok": true}`. A key the provider rejects (401 or 403) is `400 llm_key_invalid`. A network problem, a provider outage, a rate limit or an unusual gateway is `{"ok": false}`, never `llm_key_invalid`. A stored key that can no longer be decrypted is also `llm_key_invalid` (the user enters it again). At most 10 tests a minute per user (`429 rate_limited`).
+- Every outbound call to a provider goes through one guarded client: the destination address is checked after DNS resolution and the connection is made to that checked address (DNS rebinding cannot swap it), redirects are never followed, responses are capped at 8 MB (2 MB for the key check), and compressed responses are refused.

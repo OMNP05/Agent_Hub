@@ -10,6 +10,8 @@ dependencies = [
     "psycopg[binary,pool]>=3.2,<4",
     "httpx>=0.28,<1",
     "pyjwt[crypto]>=2.10,<3",
+    "langchain-openai>=1.7,<2",
+    "langchain-anthropic>=1.7,<2",
 ]
 
 [project.optional-dependencies]
@@ -44,4 +46,4 @@ ignore = ["S101"]
 
 [tool.ruff.lint.per-file-ignores]
 # Tests build SQL only from constant table lists and use fake credentials on purpose; the app code gets no such pass.
-"tests/**" = ["S105", "S106", "S608", "E501"]
+"tests/**" = ["S104", "S105", "S106", "S608", "E501"]
