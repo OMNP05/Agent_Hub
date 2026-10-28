@@ -97,7 +97,7 @@ def test_docs_are_hidden_in_production():
         supabase_url="https://x.supabase.co",
         supabase_secret_key="sb_secret_aaaaaaaaaaaa",
         database_url="postgresql://u:p@h/db",
-        master_encryption_key="a" * 44,
+        master_encryption_key="QUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVowMTIzNDU=",
         public_base_url="https://api.example.com",
     )
     client = TestClient(create_app(production))

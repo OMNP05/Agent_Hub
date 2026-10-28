@@ -8,7 +8,10 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+    # hide_input_in_errors: a validation error must never echo a bad value (a real key or password).
+    model_config = SettingsConfigDict(
+        env_file=".env", env_file_encoding="utf-8", extra="ignore", hide_input_in_errors=True
+    )
 
     environment: Literal["local", "test", "production"] = "local"
     log_level: str = "INFO"
@@ -21,6 +24,8 @@ class Settings(BaseSettings):
 
     master_encryption_key: SecretStr = SecretStr("")
     key_version: int = Field(default=1, ge=1)
+    # Old master keys kept only so old data stays readable during a rotation: "1:<base64>,2:<base64>".
+    retired_master_keys: SecretStr = SecretStr("")
 
     @field_validator("log_level")
     @classmethod
@@ -49,6 +54,16 @@ class Settings(BaseSettings):
             raise ValueError("missing required settings: " + ", ".join(missing))
         if not self.public_base_url.startswith("https://"):
             raise ValueError("PUBLIC_BASE_URL must be https in production")
+        from app.crypto.envelope import CryptoError, Envelope
+
+        try:  # a wrong-length or non-base64 key must stop the server at startup, not at the first token
+            Envelope.from_settings(
+                self.master_encryption_key.get_secret_value(),
+                self.key_version,
+                self.retired_master_keys.get_secret_value(),
+            )
+        except CryptoError as e:
+            raise ValueError(f"invalid encryption key settings: {e}") from None
         return self
 
 

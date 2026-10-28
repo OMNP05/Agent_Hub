@@ -3,6 +3,8 @@ from pydantic import ValidationError
 
 from app.config import Settings
 
+VALID_KEY = "QUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVowMTIzNDU="  # 32 bytes, a test value only
+
 
 def make(**overrides):
     return Settings(_env_file=None, **overrides)
@@ -28,7 +30,7 @@ def test_production_requires_an_https_public_url():
             supabase_url="https://x.supabase.co",
             supabase_secret_key="sb_secret_aaaaaaaaaaaa",
             database_url="postgresql://u:p@h/db",
-            master_encryption_key="a" * 44,
+            master_encryption_key=VALID_KEY,
             public_base_url="http://insecure.example.com",
         )
 
@@ -39,7 +41,7 @@ def test_production_starts_with_everything_set():
         supabase_url="https://x.supabase.co",
         supabase_secret_key="sb_secret_aaaaaaaaaaaa",
         database_url="postgresql://u:p@h/db",
-        master_encryption_key="a" * 44,
+        master_encryption_key=VALID_KEY,
         public_base_url="https://api.example.com",
     )
     assert s.environment == "production"
