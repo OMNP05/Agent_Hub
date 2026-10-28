@@ -352,5 +352,6 @@ Custom or user-written agents, any connector beyond GitHub, Gmail and Calendar, 
 | Phase | Branch | Commit | Checks | Status |
 |---|---|---|---|---|
 | B0 | none | n/a | Supabase project (Tokyo, ap-northeast-1) created; session-pooler connection to PostgreSQL 17.11 verified with `select`; secret key is the new `sb_secret_` format; `backend/.env` gitignored | Supabase part done. Google Cloud, Firebase, Google OAuth clients and GitHub App still to do (needed by B7 and B10) |
-| B1 | `backend/skeleton` | uncommitted | `ruff check`, `ruff format --check`, 47 pytest tests pass; real uvicorn run: `/healthz` 200, error format, request id, no query secrets in logs. Docker image NOT built (Docker is not installed on this machine); CI workflow not yet run on GitHub | Done, awaiting commit |
-| B2 to B13 | | | | Not started |
+| B1 | `backend/skeleton` | 31acafe | `ruff check`, `ruff format --check`, 47 pytest tests pass; real uvicorn run: `/healthz` 200, error format, request id, no query secrets in logs. Docker image NOT built (Docker is not installed on this machine); CI workflow not yet run on GitHub | Done, pushed |
+| B2 | `backend/database` | uncommitted | `ruff check`, `ruff format --check`; 193 pytest tests pass against the real Supabase Postgres, every one inside a rolled-back transaction; afterwards the real database has 0 tables and 0 test users. Without a database (CI) 50 pass and 143 skip. The migration has NOT been applied to your real Supabase project | Done, awaiting commit and your OK to apply |
+| B3 to B13 | | | | Not started |
