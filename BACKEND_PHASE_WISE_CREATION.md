@@ -234,7 +234,7 @@ The Android app needs `https://<host>/.well-known/assetlinks.json` to return the
 Rule for every phase: branch `backend/<name>`, small commits, tests written with the code, run `pytest` and the linter before calling it done, update `docs/API_CONTRACT.md` in the same change, and **ask before committing** (your standing rule). No real email, event or GitHub change in automated tests; providers are mocked.
 
 ### B0. Decisions and accounts (you, about half a day)
-Build: nothing. Do the accounts in 4.1, answer the questions in section 8, enable APIs, set the budget alert, generate the master key.
+Build: nothing. Do the accounts in 4.1, answer the questions in section 8, enable APIs, set the budget alert, generate the master key. Only the Supabase project is needed for B1 to B6; the Google Cloud project and billing are needed by B7.
 Done when: every row of 4.1 numbered 1 to 3 is ticked and the open decisions are answered.
 
 ### B1. Skeleton, tooling, CI
@@ -314,9 +314,13 @@ Matches `CLAUDE.md`: tests pass including the security tests for that phase; no 
 
 ---
 
-## 8. Decisions I need from you before B1
+## 8. Decisions
 
-1. **Hosting:** Google Cloud Run with a billing account and budget alert (recommended), or do you prefer to compare other hosts first?
+**Decided (2026-10-27): hosting is Google Cloud Run** (scale to zero, billing account with a budget alert). The GitHub Student Pack offers (Azure for Students, Heroku credit, a free domain) were considered and not chosen; the free domain from Name.com or Namecheap can still be claimed later for the App Link and Google verification. The "enough for one person" claim in section 2 is an **estimate**; B12 replaces it with measured numbers.
+
+**What actually blocks B1:** only items 6 and 7 below. The host matters from B7 (the OAuth callback needs a public URL, which a temporary tunnel or a quick deploy can provide) and B11/B12 (scheduler and deploy). B1 to B6 build and test locally with no host.
+
+1. **Hosting:** ~~Google Cloud Run or compare others~~ **decided: Cloud Run.**
 2. **Region:** Mumbai for Cloud Run and Supabase (recommended for latency), or North America for the free egress?
 3. **App Link host:** start on the free `*.run.app` URL and buy a domain later (recommended), or do you already own a domain?
 4. **Google Tasks:** you mentioned it, but `CLAUDE.md` locks v1 to exactly GitHub, Gmail and Calendar. Adding Tasks would be a fourth agent, a new template, tools and a new Google scope. I will not add it unless you explicitly approve changing `CLAUDE.md` and `architecture.md`. The plan above is built so it can be added later as another connector.
@@ -340,3 +344,13 @@ Custom or user-written agents, any connector beyond GitHub, Gmail and Calendar, 
 * **Gmail verification** is slow and may cost money; plan for GitHub and Calendar first if it is not done at launch.
 * **Prompt injection** is only reduced by prompts; the Gateway, approvals and limits are the real protection.
 * **Facts marked "verify"** in section 2 may be wrong; each is checked in the phase named beside it before anything depends on it.
+
+---
+
+## 11. Progress tracker
+
+| Phase | Branch | Commit | Checks | Status |
+|---|---|---|---|---|
+| B0 | none | n/a | Supabase project (Tokyo, ap-northeast-1) created; session-pooler connection to PostgreSQL 17.11 verified with `select`; secret key is the new `sb_secret_` format; `backend/.env` gitignored | Supabase part done. Google Cloud, Firebase, Google OAuth clients and GitHub App still to do (needed by B7 and B10) |
+| B1 | `backend/skeleton` | uncommitted | `ruff check`, `ruff format --check`, 47 pytest tests pass; real uvicorn run: `/healthz` 200, error format, request id, no query secrets in logs. Docker image NOT built (Docker is not installed on this machine); CI workflow not yet run on GitHub | Done, awaiting commit |
+| B2 to B13 | | | | Not started |
