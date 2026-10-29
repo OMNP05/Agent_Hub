@@ -31,6 +31,14 @@ object NonceGenerator {
         val bytes = ByteArray(32).also { SecureRandom().nextBytes(it) }
         return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes)
     }
+
+    /**
+     * Supabase checks the nonce inside Google's ID token against the RAW nonce we send it, and expects Google
+     * to have been given the SHA-256 hex of that raw nonce. So Google gets this value, the backend gets [raw].
+     */
+    fun forGoogle(raw: String): String =
+        java.security.MessageDigest.getInstance("SHA-256").digest(raw.toByteArray(Charsets.UTF_8))
+            .joinToString("") { "%02x".format(it) }
 }
 
 /** Credential Manager "Sign in with Google". Needs an Activity context so the account picker can show. */
@@ -45,7 +53,7 @@ class CredentialManagerGoogleIdTokenProvider @Inject constructor(
         if (webClientId.isBlank()) return IdTokenResult.Failed(DataError.SignInNotConfigured)
 
         val nonce = NonceGenerator.generate()
-        val option = GetSignInWithGoogleOption.Builder(webClientId).setNonce(nonce).build()
+        val option = GetSignInWithGoogleOption.Builder(webClientId).setNonce(NonceGenerator.forGoogle(nonce)).build()
         val request = GetCredentialRequest.Builder().addCredentialOption(option).build()
 
         return try {

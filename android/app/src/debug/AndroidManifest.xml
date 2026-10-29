@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--
+        Debug builds only. Android 17 (targetSdk 37) blocks traffic to local-network addresses unless the app
+        holds this permission, and the debug build talks to the backend on the developer's machine through the
+        emulator alias 10.0.2.2. Release builds talk to a public https address and must NOT declare it.
+        Being in the NEARBY_DEVICES group, it is granted at install time on the emulator via
+        `adb install -g`, or by the runtime prompt in Settings > Apps > Permissions.
+    -->
+    <uses-permission android:name="android.permission.ACCESS_LOCAL_NETWORK" />
+</manifest>
